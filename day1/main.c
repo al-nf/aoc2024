@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef struct node 
 {
@@ -11,7 +12,7 @@ typedef struct node
 typedef struct list
 {
     int count;
-    struct node *head;
+    NODE *head;
 } LIST;
 
 void addLast(LIST *lp, int data)
@@ -32,8 +33,8 @@ LIST *createList()
     
     NODE *dummy = malloc(sizeof(NODE)); assert(dummy != NULL);
     lp->head = dummy;
-    lp->head->next = lp->head;
-    lp->head->prev = lp->head;
+    lp->head->next = dummy;
+    lp->head->prev = dummy;
     
     return lp;
 }
@@ -52,5 +53,50 @@ void destroyList(LIST *lp)
 }
 
 int main(int argc, char *argv[])
+{
     FILE *fp;
+    LIST *list1 = createList();
+    LIST *list2 = createList();
+    int i, inp, sum;
+
+    if (argc != 2)
+    {
+        fprintf(stderr, "????\n");
+        exit(EXIT_FAILURE);
+    }
+    if ((fp = fopen(argv[1], "r")) == NULL)
+    {
+        fprintf(stderr, "cannot open %s\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+    assert(fp != NULL);
+
+    i = 0; // iterator for mod idk
+    while (fscanf(fp, "%d", &inp) != EOF)
+    {
+        if (i%2 == 0)
+        {
+            addLast(list1, inp);
+        }
+        else 
+        {
+            addLast(list2, inp);
+        }
+        i++;
+    }
     
+    sum = 0;
+    NODE *node1 = list1->head->next;
+    NODE *node2 = list2->head->next;
+    for (int i = 0; i < list2->count; i++)
+    {
+        sum += abs((node2->data) - (node1->data));
+        node1 = node1->next;
+        node2 = node2->next;
+    }
+
+    destroyList(list1);
+    destroyList(list2);
+
+    printf("sum: %d", sum);
+}
