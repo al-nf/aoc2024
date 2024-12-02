@@ -5,9 +5,10 @@
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    int i, inp, sum;
-    int data1[2000];
-    int data2[2000];
+    int i, inp;
+    int data1[5000];
+    int data2[5000];
+    unsigned long long sum;
 
     if (argc != 2)
     {
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
     }
     assert(fp != NULL);
 
-    i = 0; // iterator for mod idk
+    i = 0; 
     while (fscanf(fp, "%d", &inp) != EOF)
     {
         if (i%2 == 0)
@@ -34,14 +35,19 @@ int main(int argc, char *argv[])
         }
         i++;
     }
-    
-    qsort(data1, i, 2000);
-    qsort(data2, i, 2000);
-    sum = 0;
-    for (int j = 0; j < i; j++)
+
+    int compare(const void *a, const void *b) 
     {
-        sum += abs(data2[i] - data1[i]);
+        return *(int*)a - *(int*)b;
+    }
+    qsort(data1, i-1, 5000, compare);
+    qsort(data2, i-1, 5000, compare);
+    sum = 0;
+    for (int j = 0; j < i-1; j++)
+    {
+
+        sum += abs(data2[j] - data1[j]);
     }
 
-    printf("sum: %d\n", sum);
+    printf("sum: %lld\n", sum);
 }
