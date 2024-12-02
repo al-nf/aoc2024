@@ -2,18 +2,19 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int ss(int *data, int stuff)
+int ss(int *data, int stuff, int length)
 {
     int sum = 0; 
-    for (int i = 0; i < (sizeof(data) / sizeof(data[0])); i++)
+    for (int i = 0; i < length; i++)
     {
         if (data[i] == stuff)
         {
             sum++;
         }
     }
-    return sum * stuff;
+    return (sum * stuff);
 }
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
 
     for (int j = 0; j < k; j++)
     {
-        sum += ss(data2, data1[j]);
+        sum += ss(data2, data1[j], sizeof(data1)/sizeof(int));
     }
 
     printf("sum: %lld\n", sum);
