@@ -5,12 +5,14 @@
 int ss(int *data, int stuff)
 {
     int sum = 0; 
-    for (int i = 0; i < sizeof(data) / sizeof(data[0]); i++)
+    for (int i = 0; i < (sizeof(data) / sizeof(data[0])); i++)
     {
         if (data[i] == stuff)
+        {
             sum++;
+        }
     }
-    return sum;
+    return sum * stuff;
 }
 int main(int argc, char *argv[])
 {
@@ -47,17 +49,6 @@ int main(int argc, char *argv[])
         }
         i++;
     }
-
-    /*
-    int compare(const void *a, const void *b) 
-    {
-        return *(int*)a - *(int*)b;
-    }
-
-    qsort(data1, k, sizeof(int), compare);
-    qsort(data2, k, sizeof(int), compare);
-    */
-
     sum = 0;
 
     for (int j = 0; j < k; j++)
