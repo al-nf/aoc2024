@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     FILE *fp;
-    int i, inp;
+    int i, inp, k;
     int data1[5000];
     int data2[5000];
     unsigned long long sum;
@@ -23,15 +23,17 @@ int main(int argc, char *argv[])
     assert(fp != NULL);
 
     i = 0; 
+    k = 0;
     while (fscanf(fp, "%d", &inp) != EOF)
     {
         if (i%2 == 0)
         {
-            data1[i] = inp;
+            data1[k] = inp;
         }
         else 
         {
-            data2[i] = inp;
+            data2[k] = inp;
+            k++;
         }
         i++;
     }
@@ -40,12 +42,14 @@ int main(int argc, char *argv[])
     {
         return *(int*)a - *(int*)b;
     }
-    qsort(data1, i-1, 5000, compare);
-    qsort(data2, i-1, 5000, compare);
-    sum = 0;
-    for (int j = 0; j < i-1; j++)
-    {
 
+    qsort(data1, k, sizeof(int), compare);
+    qsort(data2, k, sizeof(int), compare);
+
+    sum = 0;
+
+    for (int j = 0; j < i; j++)
+    {
         sum += abs(data2[j] - data1[j]);
     }
 
