@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     int i, inp, k;
     int data1[5000];
     int data2[5000];
-    unsigned long long sum;
+    unsigned long long sum; // this does not need to be an unsigned long long :sob:
 
     if (argc != 2)
     {
