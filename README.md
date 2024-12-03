@@ -1,5 +1,6 @@
 # TIMES
-### i5-10400, mean of sample size 5
+### **Processor:** Intel® Core™ i5-10400 
+#### Times measured as a mean of sample size 5
 |Puzzle|Time|
 |---|---|
 |1.1|0.001 s|
