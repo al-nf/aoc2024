@@ -57,7 +57,7 @@ bool can_be_safe_by_removing_one_level(int levels[], int n) {
 int main(int argc, char *argv[]) {
     FILE *fp;
     char buffer[MAX_LINE_LENGTH];
-    int inp, linp, diff;
+    int inp;
     int sum = 0;
 
     if (argc != 2) {

@@ -45,8 +45,6 @@ int main(int argc, char *argv[])
             {
                 diff = inp - linp;
 
-                printf("inp: %d, linp: %d, diff: %d\n", inp, linp, diff);
-
                 if (diff > 3 || diff < -3)
                 {
                     good = false;
