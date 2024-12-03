@@ -80,7 +80,8 @@ int main(int argc, char *argv[])
                 linp = inp;
             }
 
-            while (*ptr != '\0' && *ptr != ' ' && *ptr != '\n') // Skip current number
+            // stupid pointer logic
+            while (*ptr != '\0' && *ptr != ' ' && *ptr != '\n') 
                 ptr++;
             while (*ptr == ' ')
                 ptr++;
@@ -95,7 +96,5 @@ int main(int argc, char *argv[])
 
     fclose(fp);
     printf("sum: %d\n", sum);
-
-    return 0;
 }
 
