@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
         getc(fp); // clears the newline
     }
 
+    // NOTE: each traversal checks the sequence forwards and backwards
+
     // HORIZONTAL
     for (int i = 0; i < ROWS; i++)
     {

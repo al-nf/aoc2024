@@ -48,14 +48,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* DEBUG
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < ROWS; j++) {
-            printf("%c", arr[i][j]);
-        }
-        printf("\n");
-    }
-    */
     fclose(fp); 
     printf("sum: %d\n", sum);
 }
