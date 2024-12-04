@@ -1,7 +1,7 @@
 # TIMES
 ### **Processor:** [Intel® Core™ i5-10400](https://www.intel.com/content/www/us/en/products/sku/199271/intel-core-i510400-processor-12m-cache-up-to-4-30-ghz/specifications.html)
 #### n = 5
-|Puzzle|Time|Time Complexity|
+|Puzzle|Average Time|Time Complexity|
 |---|---|---|
 |1-1|0.001 s|$O(n\log{n})$|
 |1-2|0.011 s|$O(n^2)$|
