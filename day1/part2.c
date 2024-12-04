@@ -57,5 +57,6 @@ int main(int argc, char *argv[])
         sum += ss(data2, data1[j], sizeof(data1)/sizeof(int));
     }
 
+    fclose(fp);
     printf("sum: %lld\n", sum);
 }

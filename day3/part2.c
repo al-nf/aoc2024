@@ -89,6 +89,5 @@ int main(int argc, char *argv[])
     }
     fclose(fp); 
     printf("sum: %d\n", sum);
-    return 0; 
 }
 

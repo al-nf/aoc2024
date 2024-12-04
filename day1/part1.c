@@ -53,5 +53,6 @@ int main(int argc, char *argv[])
         sum += abs(data2[j] - data1[j]);
     }
 
+    fclose(fp);
     printf("sum: %lld\n", sum);
 }
