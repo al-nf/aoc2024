@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ctype.h>
-#include <stdbool.h>
 
 int main(int argc, char *argv[])
 {
     FILE *fp;
+    int sum;
 
     if (argc != 2)
     {
@@ -20,9 +19,7 @@ int main(int argc, char *argv[])
     }
     assert(fp != NULL);
 
-    
-
-
+    // PUT CODE HERE
 
     fclose(fp); 
     printf("sum: %d\n", sum);
