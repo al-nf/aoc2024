@@ -1,2 +1,2 @@
-[day2](https://adventofcode.com/2024/day/2)
+# [DAY 2](https://adventofcode.com/2024/day/2)
 
