@@ -3,7 +3,7 @@
 #### average execution time, n = 5
 |Puzzle|Time|Time Complexity|
 |---|---|---|
-|1-1|0.001 s|$O(n\log{n})$|
+|1-1|0.001 s|$O(n\ \log{n})$|
 |1-2|0.011 s|$O(n^2)$|
 |2-1|0.003 s|$O(n)$|
 |2-2|0.001 s|$O(n^3)$|
