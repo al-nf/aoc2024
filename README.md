@@ -1,5 +1,5 @@
 # TIMES
-### **Processor:** Intel® Core™ i5-10400 
+### **Processor:** [Intel® Core™ i5-10400](https://www.intel.com/content/www/us/en/products/sku/199271/intel-core-i510400-processor-12m-cache-up-to-4-30-ghz/specifications.html)
 #### Times measured as a mean of sample size 5
 |Puzzle|Time|Time Complexity|
 |---|---|---|
