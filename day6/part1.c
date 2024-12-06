@@ -12,7 +12,6 @@ enum dir {
     l = 3
 };
 
-// Moves the coordinates in the specified direction
 void move(enum dir direction, int *x, int *y) {
     switch (direction) {
         case u: (*y)--; break;
@@ -77,6 +76,5 @@ int main(int argc, char *argv[]) {
     }
 
     printf("sum: %d\n", sum);
-    return 0;
 }
 
