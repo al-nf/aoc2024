@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
     }
 
     if ((fp = fopen(argv[1], "r")) == NULL) {
-        perror("Error opening file");
         exit(EXIT_FAILURE);
     }
 

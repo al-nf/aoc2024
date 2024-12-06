@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
     }
 
     if ((fp = fopen(argv[1], "r")) == NULL) {
-        perror("Error opening file");
         exit(EXIT_FAILURE);
     }
 
@@ -101,6 +100,5 @@ int main(int argc, char *argv[]) {
     }
 
     printf("sum: %d\n", valid_positions_count);
-    return 0;
 }
 
