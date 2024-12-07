@@ -5,10 +5,10 @@
 
 #define MAX_NUMBERS 100
 
-unsigned long long evaluate_expression(int numbers[], char operators[], int n) 
+unsigned long long evaluate_expression(unsigned long long numbers[], char operators[], unsigned long long n) 
 {
     unsigned long long result = numbers[0];
-    for (int i = 0; i < n - 1; i++) 
+    for (unsigned long long i = 0; i < n - 1; i++) 
     {
         if (operators[i] == '+') 
         {
@@ -22,11 +22,11 @@ unsigned long long evaluate_expression(int numbers[], char operators[], int n)
     return result;
 }
 
-unsigned long long find_combinations_count(int target, int numbers[], int n) 
+unsigned long long find_combinations_count(unsigned long long target, unsigned long long numbers[], unsigned long long n) 
 {
     int num_operators = n - 1;
     int num_combinations = 1 << num_operators;
-    char operators[MAX_NUMBERS];
+    char operators[MAX_NUMBERS-1];
     unsigned long long count = 0;
 
     for (int mask = 0; mask < num_combinations; mask++) 
@@ -66,15 +66,15 @@ int main(int argc, char *argv[])
     char line[1028];
     while (fgets(line, sizeof(line), fp)) 
     {
-        int target, numbers[MAX_NUMBERS], n = 0;
+        unsigned long long target, numbers[MAX_NUMBERS], n = 0;
 
         char *token = strtok(line, ":");
-        target = atoi(token);
+        target = strtoull(token, NULL, 10);
 
         token = strtok(NULL, " ");
         while (token != NULL && n < MAX_NUMBERS) 
         {
-            numbers[n++] = atoi(token); 
+            numbers[n++] = strtoull(token, NULL, 10); 
             token = strtok(NULL, " ");
         }
 
@@ -87,5 +87,5 @@ int main(int argc, char *argv[])
     }
 
     fclose(fp);
-    printf("Total calibration result: %llu\n", sum);
+    printf("sum: %llu\n", sum);
 }
