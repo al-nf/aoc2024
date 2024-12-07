@@ -5,14 +5,16 @@
 #define ROWS 130
 #define COLS 130
 
-enum dir {
+enum dir 
+{
     u = 0, 
     r = 1,
     d = 2,
     l = 3
 };
 
-void move(enum dir direction, int *x, int *y) {
+void move(enum dir direction, int *x, int *y) 
+{
     switch (direction) {
         case u: (*y)--; break;
         case r: (*x)++; break;
@@ -21,7 +23,8 @@ void move(enum dir direction, int *x, int *y) {
     }
 }
 
-bool causes_infinite_loop(char arr[ROWS][COLS], int start_x, int start_y, int obstacle_x, int obstacle_y) {
+bool causes_infinite_loop(char arr[ROWS][COLS], int start_x, int start_y, int obstacle_x, int obstacle_y) 
+{
     enum dir direction = u;
     bool visited[ROWS][COLS] = {false};
     enum dir directionsVisited[ROWS][COLS] = {0}; 
@@ -29,18 +32,24 @@ bool causes_infinite_loop(char arr[ROWS][COLS], int start_x, int start_y, int ob
 
     arr[obstacle_y][obstacle_x] = '#';
 
-    while (true) {
+    while (true) 
+    {
         int next_x = current_x, next_y = current_y;
         move(direction, &next_x, &next_y);
 
-        if (next_y < 0 || next_y >= ROWS || next_x < 0 || next_x >= COLS) {
+        if (next_y < 0 || next_y >= ROWS || next_x < 0 || next_x >= COLS) 
+        {
             break; 
         }
 
-        if (arr[next_y][next_x] == '#') {
+        if (arr[next_y][next_x] == '#') 
+        {
             direction = (enum dir)((direction + 1) % 4);
-        } else {
-            if (visited[next_y][next_x] && directionsVisited[next_y][next_x] == direction) {
+        } 
+        else 
+        {
+            if (visited[next_y][next_x] && directionsVisited[next_y][next_x] == direction) 
+            {
                 arr[obstacle_y][obstacle_x] = '.'; 
                 return true;
             }
@@ -48,7 +57,8 @@ bool causes_infinite_loop(char arr[ROWS][COLS], int start_x, int start_y, int ob
             current_x = next_x;
             current_y = next_y;
 
-            if (!visited[current_y][current_x]) {
+            if (!visited[current_y][current_x]) 
+            {
                 visited[current_y][current_x] = true;
                 directionsVisited[current_y][current_x] = direction;
             }
@@ -59,25 +69,31 @@ bool causes_infinite_loop(char arr[ROWS][COLS], int start_x, int start_y, int ob
     return false; 
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
     FILE *fp;
     char arr[ROWS][COLS];
     int guard_x = -1, guard_y = -1;
     int valid_positions_count = 0;
 
-    if (argc != 2) {
+    if (argc != 2) 
+    {
         fprintf(stderr, "Usage: %s <input file>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    if ((fp = fopen(argv[1], "r")) == NULL) {
+    if ((fp = fopen(argv[1], "r")) == NULL) 
+    {
         exit(EXIT_FAILURE);
     }
 
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
+    for (int i = 0; i < ROWS; i++) 
+    {
+        for (int j = 0; j < COLS; j++) 
+        {
             arr[i][j] = getc(fp);
-            if (arr[i][j] == '^') {
+            if (arr[i][j] == '^') 
+            {
                 guard_x = j;
                 guard_y = i;
                 arr[i][j] = '.';
@@ -87,13 +103,16 @@ int main(int argc, char *argv[]) {
     }
     fclose(fp);
 
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            if (arr[i][j] != '.' || (i == guard_y && j == guard_x)) {
+    for (int i = 0; i < ROWS; i++) 
+    {
+        for (int j = 0; j < COLS; j++) 
+        {
+            if (arr[i][j] != '.' || (i == guard_y && j == guard_x)) 
+            {
                 continue;
             }
-
-            if (causes_infinite_loop(arr, guard_x, guard_y, j, i)) {
+            if (causes_infinite_loop(arr, guard_x, guard_y, j, i)) 
+            {
                 valid_positions_count++;
             }
         }
