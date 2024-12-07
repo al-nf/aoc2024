@@ -34,7 +34,6 @@ unsigned long long evaluate_expression(unsigned long long numbers[], char operat
         }
         else 
         {
-            fprintf(stderr, "Unknown operator encountered: %c\n", operators[i]);
             exit(EXIT_FAILURE);
         }
     }
