@@ -32,14 +32,13 @@ void findAntinodes(vector<vector<char>>& data)
 
         for (int i = 0; i < points.size(); i++) 
         {
+            pair<int, int> p1 = points[i];
+            data[p1.first][p1.second] = '#';
             for (int j = i + 1; j < points.size(); ++j) 
             {
-                pair<int, int> p1 = points[i];
                 pair<int, int> p2 = points[j];
-                
                 int dx = p1.first - p2.first;
                 int dy = p1.second - p2.second;
-                
                 pair<int, int> n1 = {p1.first + dx, p1.second + dy};
                 pair<int, int> n2 = {p2.first - dx, p2.second - dy};
 
