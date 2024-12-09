@@ -73,7 +73,8 @@ void findAntinodes(vector<vector<char>>& data)
     cout << "sum: " << sum << endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
     ifstream input_file(argv[1]);
     vector<vector<char>> data;
 
