@@ -9,7 +9,7 @@ std::vector<int> readInput(const std::string& filename) {
     char c;
 
     while (file >> c) {
-        nums.push_back(c - '0');  // Convert char to int
+        nums.push_back(c - '0');
     }
     
     return nums;
@@ -74,7 +74,7 @@ int main() {
     std::string filename = "input.txt";
     std::vector<int> nums = readInput(filename);
     
-    part2(nums);  // Call the second part function
+    part2(nums); 
 
     return 0;
 }
