@@ -75,7 +75,5 @@ int main() {
     std::vector<int> nums = readInput(filename);
     
     part2(nums); 
-
-    return 0;
 }
 
