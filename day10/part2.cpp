@@ -1,84 +1,72 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <unordered_map>
 #include <string>
-
 using namespace std;
 
-unordered_map<char, vector<pair<int, int>>> get_pts(const vector<vector<char>>& data) 
+int findTrailPaths(vector<vector<int>> map) 
 {
-    unordered_map<char, vector<pair<int, int>>> freq_pts;
-    for (int i = 0; i < data.size(); i++) 
-    {
-        for (int j = 0; j < data[i].size(); j++) 
-        {
-            if (data[i][j] != '.') {
-                freq_pts[data[i][j]].push_back({i, j});
-            }
-        }
-    }
-    return freq_pts;
-}
-
-void findAntinodes(vector<vector<char>>& data) 
-{
-    unordered_map<char, vector<pair<int, int>>> freq_pts = get_pts(data);
     int sum = 0;
+    int rows = map.size();
+    int cols = map[0].size();
 
-    for (const auto& entry : freq_pts) 
+    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+
+    const vector<pair<int, int>> dirs = 
     {
-        const vector<pair<int, int>>& points = entry.second;
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
 
-        for (int i = 0; i < points.size(); i++) 
+    auto dfs = [&](int x, int y, auto&& self) -> int 
+    {
+        if (map[x][y] == 9)
         {
-            pair<int, int> p1 = points[i];
-            data[p1.first][p1.second] = '#';
-            for (int j = i + 1; j < points.size(); ++j) 
+            return 1;
+        }
+
+        visited[x][y] = true;
+        int rating = 0;
+
+        for (auto [dx, dy] : dirs) 
+        {
+            int nx = x + dx, ny = y + dy;
+
+            if (nx >= 0 && nx < rows && ny >= 0 && ny < cols) 
             {
-                pair<int, int> p2 = points[j];
-                int dx = p1.first - p2.first;
-                int dy = p1.second - p2.second;
-                pair<int, int> n1 = {p1.first + dx, p1.second + dy};
-                pair<int, int> n2 = {p2.first - dx, p2.second - dy};
-
-                while (n1.first >= 0 && n1.first < data.size() && n1.second >= 0 && n1.second < data[0].size()) 
+                if (!visited[nx][ny] && map[nx][ny] != -1 && map[nx][ny] == map[x][y] + 1)
                 {
-                    data[n1.first][n1.second] = '#';
-                    n1.first += dx;
-                    n1.second += dy;
-
-                } 
-
-                while (n2.first >= 0 && n2.first < data.size() && n2.second >= 0 && n2.second < data[0].size()) 
-                {
-                    data[n2.first][n2.second] = '#';
-                    n2.first -= dx;
-                    n2.second -= dy;
+                    rating += self(nx, ny, self); 
                 }
             }
         }
-    }
-    
-    vector<vector<char>>::iterator row;
-    vector<char>::iterator col;
-    for (row = data.begin(); row != data.end(); row++)
+        visited[x][y] = false;
+        return rating; 
+    };
+
+    for (int i = 0; i < rows; i++) 
     {
-        for (col = row->begin(); col != row->end(); col++)
+        for (int j = 0; j < cols; j++) 
         {
-            if (*col == '#')
-                sum++;
+            if (map[i][j] == 0 && !visited[i][j]) 
+            {
+                sum += dfs(i, j, dfs); 
+            }
         }
     }
-    cout << "sum: " << sum << endl;
+    return sum;
 }
+
 
 int main(int argc, char *argv[]) 
 {
     ifstream input_file(argv[1]);
-    vector<vector<char>> data;
+    vector<vector<int>> data;
 
-    if (!input_file) {
+    if (!input_file) 
+    {
         cerr << "error opening file" << endl;
         return 1; 
     }
@@ -86,9 +74,17 @@ int main(int argc, char *argv[])
     string line;
     while (getline(input_file, line)) 
     {
-        vector<char> row(line.begin(), line.end());
+        vector<int> row;
+        for (char c : line) 
+        {
+            if (c != '.')
+                row.push_back(c - '0');
+            else
+                row.push_back(-1);
+        }
         data.push_back(row);
     }
 
-    findAntinodes(data);
+    printf("sum: %d\n", findTrailPaths(data));
 }
+

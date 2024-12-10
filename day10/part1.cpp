@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     if (!input_file) 
     {
-        cerr << "Error opening file" << endl;
+        cerr << "error opening file" << endl;
         return 1; 
     }
 
