@@ -9,55 +9,47 @@
 
 using namespace std;
 
-unordered_map<unsigned long long, unordered_map<int, unsigned long long>> dict;
+unordered_map<unsigned long long, unordered_map<int, unsigned long long>> memo;
 
-unsigned long long stones(unsigned long long stone, int reps)
-{    
-
-    auto split = [](unsigned long long num) -> pair<unsigned long long, unsigned long long>
+pair<unsigned long long, unsigned long long> split(unsigned long long num) 
+{
+    if (num == 0) return {0, 0};
+    int digits = static_cast<int>(log10(num)) + 1;
+    unsigned long long div = 1;
+    for (int i = 0; i < digits / 2; i++) 
     {
-        if (num == 0)
-        {
-            return {0, 0};
-        }
+        div *= 10;
+    }
+    unsigned long long part1 = num / div;
+    unsigned long long part2 = num % div;
+    return {part1, part2};
+}
 
-        int digits = static_cast<unsigned long long>(log10(num)) + 1;
-        unsigned long long div = 1;
-        for (int i = 0; i < digits / 2; i++)
-        {
-            div *= 10;
-        }
+unsigned long long stones(unsigned long long stone, int reps) 
+{
+    if (reps == 0) return 1;
 
-        unsigned long long part1 = num / div;
-        unsigned long long part2 = num % div;
+    if (memo[stone].count(reps)) 
+        return memo[stone][reps];
 
-        return {part1, part2};
-    };
+    unsigned long long term = 0;
 
-    if (reps == 0)
+    if (stone == 0) 
     {
-        dict[stone][0] = 1;
-        return 1;
+        term = stones(1, reps - 1);
+    } 
+    else if ((static_cast<int>(log10(stone)) + 1) % 2 == 0) 
+    {
+        auto [part1, part2] = split(stone);
+        term = stones(part1, reps - 1) + stones(part2, reps - 1);
+    } 
+    else 
+    {
+        term = stones(stone * 2024, reps - 1);
     }
 
-    if (dict.find(stone) != dict.end())
-    {
-        if (dict[stone].find(reps) != dict[stone].end())
-        {
-            return dict[stone][reps];
-        }
-    }
-
-    if ((static_cast<unsigned long long>(log10(stone) + 1)) % 2 == 0)
-    {
-        pair<unsigned long long, unsigned long long> splitNum = split(stone);
-        dict[stone][reps] = stones(splitNum.first, reps - 1) + stones(splitNum.second, reps - 1);
-    }
-    else
-    {
-        dict[stone][reps] = stones(stone * 2024, reps - 1);
-    }
-    return dict[stone][reps];
+    memo[stone][reps] = term;
+    return term;
 }
 
 int main(int argc, char *argv[]) 
@@ -85,7 +77,7 @@ int main(int argc, char *argv[])
 
     for (unsigned long long num : data)
     {
-        sum += stones(num, 6);
+        sum += stones(num, 75);
     }
     printf("stones: %llu\n", sum);
 }
