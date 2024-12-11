@@ -5,67 +5,66 @@
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
-unordered_map<unsigned long long, vector<unsigned long long>> memo;
+unordered_map<unsigned long long, unordered_map<int, unsigned long long>> dict;
 
-vector<unsigned long long> transform(unsigned long long num) 
-{
-    if (memo.find(num) != memo.end()) 
+unsigned long long stones(unsigned long long stone, int reps)
+{    
+
+    auto split = [](unsigned long long num) -> pair<unsigned long long, unsigned long long>
     {
-        return memo[num];
+        if (num == 0)
+        {
+            return {0, 0};
+        }
+
+        int digits = static_cast<unsigned long long>(log10(num)) + 1;
+        unsigned long long div = 1;
+        for (int i = 0; i < digits / 2; i++)
+        {
+            div *= 10;
+        }
+
+        unsigned long long part1 = num / div;
+        unsigned long long part2 = num % div;
+
+        return {part1, part2};
+    };
+
+    if (reps == 0)
+    {
+        dict[stone][0] = 1;
+        return 1;
     }
 
-    vector<unsigned long long> result;
-
-    if (num == 0) 
+    if (dict.find(stone) != dict.end())
     {
-        result.push_back(1); 
-    }
-    else 
-    {
-        string num_str = to_string(num);
-        if (num_str.size() % 2 == 0) 
+        if (dict[stone].find(reps) != dict[stone].end())
         {
-            size_t mid = num_str.size() / 2;
-            unsigned long long left = stoull(num_str.substr(0, mid));
-            unsigned long long right = stoull(num_str.substr(mid));
-            result.push_back(left);
-            result.push_back(right);
-        } 
-        else 
-        {
-            result.push_back(num * 2024); 
+            return dict[stone][reps];
         }
     }
 
-    memo[num] = result;
-
-    return result;
-}
-
-unsigned long long countStones(vector<unsigned long long>& stones, int blinks) 
-{
-    if (blinks == 0) 
+    if ((static_cast<unsigned long long>(log10(stone) + 1)) % 2 == 0)
     {
-        return stones.size();
+        pair<unsigned long long, unsigned long long> splitNum = split(stone);
+        dict[stone][reps] = stones(splitNum.first, reps - 1) + stones(splitNum.second, reps - 1);
     }
-
-    vector<unsigned long long> next_stones;
-    for (unsigned long long stone : stones) 
+    else
     {
-        vector<unsigned long long> transformed = transform(stone);
-        next_stones.insert(next_stones.end(), transformed.begin(), transformed.end());
+        dict[stone][reps] = stones(stone * 2024, reps - 1);
     }
-
-    return countStones(next_stones, blinks - 1);
+    return dict[stone][reps];
 }
 
 int main(int argc, char *argv[]) 
 {
     ifstream input_file(argv[1]);
     vector<unsigned long long> data;
+    unsigned long long sum = 0;
 
     if (!input_file) 
     {
@@ -84,6 +83,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("stones: %llu\n", countStones(data, 75));
+    for (unsigned long long num : data)
+    {
+        sum += stones(num, 6);
+    }
+    printf("stones: %llu\n", sum);
 }
 
