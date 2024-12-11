@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -fopenmp -O2
+CFLAGS = -Wall -Wextra -fopenmp -O2
 
 PART1 = part1
 PART2 = part2
@@ -11,6 +11,7 @@ $(PART1): part1.cpp
 
 $(PART2): part2.cpp
 	$(CC) $(CFLAGS) part2.cpp -o $(PART2)
+
 clean:
 	rm -f $(PART1) $(PART2)
 

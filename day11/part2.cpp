@@ -5,12 +5,37 @@
 #include <sstream>
 #include <cmath>
 #include <utility>
-#include <omp.h>
 using namespace std;
 
-int stones(vector<unsigned long long>& data, int reps)
+unsigned long long stones(vector<unsigned long long>& data, int reps)
 {
-    
+    unsigned long long zeroes = 0;
+    unsigned long long ones = 0;
+
+    auto removeZerosAndOnes = [&zeroes, &ones](vector<unsigned long long>& data) 
+    {
+        auto it = data.begin();
+        while (it != data.end()) 
+        {
+            if (*it == 0) 
+            {
+                zeroes++;
+                it = data.erase(it); 
+            } 
+            else if (*it == 1) 
+            {
+                ones++;
+                it = data.erase(it); 
+            } 
+            else 
+            {
+                ++it;
+            }
+        }
+    };
+
+    removeZerosAndOnes(data);
+
     auto evenDigits = [](unsigned long long num)
     {
         int count = 0;
@@ -21,7 +46,7 @@ int stones(vector<unsigned long long>& data, int reps)
         }
         return count % 2 == 0;
     };
-    
+
     auto split = [](unsigned long long num) -> pair<unsigned long long, unsigned long long>
     {
         if (num == 0)
@@ -41,40 +66,42 @@ int stones(vector<unsigned long long>& data, int reps)
 
         return {part1, part2};
     };
-    auto blink = [&data, &evenDigits, &split]() 
+
+    auto blink = [&data, &evenDigits, &split, &zeroes, &ones]() 
     {
         vector<unsigned long long> tmp;
-        tmp.reserve(data.size() * 2);
-
-        #pragma omp parallel
+        unsigned long long newZeroes = 0;
+        unsigned long long newOnes = ones; 
+        for (size_t i = 0; i < data.size(); i++) 
         {
-            vector<unsigned long long> localTmp;
-            localTmp.reserve(data.size() * 2);
-
-            #pragma omp for
-            for (size_t i = 0; i < data.size(); i++) 
+            if (evenDigits(data[i])) 
             {
-                if (data[i] == 0) 
-                {
-                    localTmp.push_back(1);
-                } 
-                else if (evenDigits(data[i])) 
-                {
-                    pair<unsigned long long, unsigned long long> splitNum = split(data[i]);
-                    localTmp.push_back(splitNum.first);
-                    localTmp.push_back(splitNum.second);
-                } 
-                else 
-                {
-                    localTmp.push_back(data[i] * 2024); 
-                }
-            }
-            #pragma omp critical
+                pair<unsigned long long, unsigned long long> splitNum = split(data[i]);
+                if (splitNum.first == 0)
+                    newZeroes++;
+                else if (splitNum.first == 1)
+                    newOnes++;
+                else
+                    tmp.push_back(splitNum.first);
+                if (splitNum.second == 0)
+                    newZeroes++;
+                else if (splitNum.second == 1)
+                    newOnes++;
+                else
+                    tmp.push_back(splitNum.second); 
+            } 
+            else 
             {
-                tmp.insert(tmp.end(), localTmp.begin(), localTmp.end());
+                tmp.push_back(data[i] * 2024);
             }
         }
+        for (unsigned long long i = 0; i < ones; i++)
+        {
+            tmp.push_back(2024);
+        }
         data = move(tmp);
+        zeroes = newZeroes;
+        ones = newOnes;
     };
 
     for (int i = 0; i < reps; i++)
@@ -88,9 +115,9 @@ int stones(vector<unsigned long long>& data, int reps)
         */
         blink();
     }
-    return data.size();
-
+    return data.size() + zeroes + ones;
 }
+
 int main(int argc, char *argv[]) 
 {
     ifstream input_file(argv[1]);
@@ -114,6 +141,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("stones: %d\n", stones(data, 75));
+    printf("stones: %llu\n", stones(data, 25));
 }
 
