@@ -1,1 +1,1 @@
-# [DAY 10](https://adventofcode.com/2024/day/10)
+# [DAY 11](https://adventofcode.com/2024/day/11)
