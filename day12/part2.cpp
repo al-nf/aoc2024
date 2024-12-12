@@ -2,61 +2,119 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include <unordered_map>
 #include <string>
-#include <algorithm>
-#include <cmath>
+#include <stack>
+#include <set>
 
 using namespace std;
 
-unordered_map<unsigned long long, unordered_map<int, unsigned long long>> memo;
-
-pair<unsigned long long, unsigned long long> split(unsigned long long num) 
+pair<int, int> dfs(int x, int y, char plant_type, const vector<vector<char>>& data, vector<vector<bool>>& visited) 
 {
-    if (num == 0) return {0, 0};
-    int digits = static_cast<int>(log10(num)) + 1;
-    unsigned long long div = 1;
-    for (int i = 0; i < digits / 2; i++) 
+    const vector<pair<int, int>> dirs = 
     {
-        div *= 10;
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1} 
+    };
+
+    stack<pair<int, int>> s;
+    s.push({x, y});
+    visited[x][y] = true;
+    
+    int area = 0;
+    int side = 0;
+    
+    set<tuple<int, int, int, int>> visited_edges;
+
+    while (!s.empty()) {
+        auto [cx, cy] = s.top();
+        s.pop();
+        area++; 
+
+        for (const auto& dir : dirs) {
+            int nx = cx + dir.first;
+            int ny = cy + dir.second;
+            
+            if (nx >= 0 && nx < data.size() && ny >= 0 && ny < data[0].size()) 
+            {
+                if (data[nx][ny] == plant_type && !visited[nx][ny]) {
+                    visited[nx][ny] = true;
+                    s.push({nx, ny});
+                }
+                else if (data[nx][ny] != plant_type) 
+                {
+                    int cx2 = cx;
+                    int cy2 = cy;
+
+                    while (cx2 + dir.second >= 0 && cx2 + dir.second < data.size() && cy2 + dir.first >= 0 && cy2 + dir.first < data[0].size() &&
+                           data[cx2 + dir.second][cy2 + dir.first] == plant_type) 
+                    {
+                        cx2 += dir.second;
+                        cy2 += dir.first;
+                    }
+
+                    if (visited_edges.find({cx2, cy2, dir.first, dir.second}) == visited_edges.end()) 
+                    {
+                        visited_edges.insert({cx2, cy2, dir.first, dir.second});
+                        side++;
+                    }
+                }
+            }
+            else 
+            {
+                int cx2 = cx;
+                int cy2 = cy;
+
+                while (cx2 + dir.second >= 0 && cx2 + dir.second < data.size() && cy2 + dir.first >= 0 && cy2 + dir.first < data[0].size() &&
+                       data[cx2 + dir.second][cy2 + dir.first] == plant_type) 
+                {
+                    cx2 += dir.second;
+                    cy2 += dir.first;
+                }
+
+                if (visited_edges.find({cx2, cy2, dir.first, dir.second}) == visited_edges.end()) 
+                {
+                    visited_edges.insert({cx2, cy2, dir.first, dir.second});
+                    side++;
+                }
+            }
+        }
     }
-    unsigned long long part1 = num / div;
-    unsigned long long part2 = num % div;
-    return {part1, part2};
+
+    return {area, side};
 }
 
-unsigned long long stones(unsigned long long stone, int reps) 
+
+int price(vector<vector<char>> data) 
 {
-    if (reps == 0) return 1;
+    const int rows = data.size();
+    const int cols = data[0].size();
+    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
 
-    if (memo[stone].count(reps)) 
-        return memo[stone][reps];
+    int sum = 0;
 
-    unsigned long long term = 0;
 
-    if (stone == 0) 
+    for (int i = 0; i < rows; i++)
     {
-        term = stones(1, reps - 1);
-    } 
-    else if ((static_cast<int>(log10(stone)) + 1) % 2 == 0) 
-    {
-        auto [part1, part2] = split(stone);
-        term = stones(part1, reps - 1) + stones(part2, reps - 1);
-    } 
-    else 
-    {
-        term = stones(stone * 2024, reps - 1);
+        for (int j = 0; j < cols; j++)
+        {
+            if (!visited[i][j])
+            {
+                char plant_type = data[i][j];
+                auto [area, perimiter] = dfs(i, j, plant_type, data, visited);
+                int term = area * perimiter;
+                sum += term;
+            }
+        }
     }
-
-    memo[stone][reps] = term;
-    return term;
+    return sum;
 }
 
 int main(int argc, char *argv[]) 
 {
     ifstream input_file(argv[1]);
-    vector<unsigned long long> data;
-    unsigned long long sum = 0;
+    vector<vector<char>> data;
 
     if (!input_file) 
     {
@@ -67,18 +125,9 @@ int main(int argc, char *argv[])
     string line;
     while (getline(input_file, line)) 
     {
-        stringstream ss(line);
-        unsigned long long value;
-
-        while (ss >> value) {
-            data.push_back(value);
-        }
+        vector<char> row(line.begin(), line.end());
+        data.push_back(row);
     }
 
-    for (unsigned long long num : data)
-    {
-        sum += stones(num, 75);
-    }
-    printf("stones: %llu\n", sum);
+    printf("sum: %d\n", price(data));
 }
-
