@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <sstream>
-#include <unordered_map>
 #include <string>
 #include <stack>
 
@@ -73,8 +71,8 @@ int price(vector<vector<char>> data)
             if (!visited[i][j])
             {
                 char plant_type = data[i][j];
-                auto [area, perimiter] = dfs(i, j, plant_type, data, visited);
-                int term = area * perimiter;
+                auto [area, perimeter] = dfs(i, j, plant_type, data, visited);
+                int term = area * perimeter;
                 sum += term;
             }
         }
