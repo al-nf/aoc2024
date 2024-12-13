@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = 
+CFLAGS = -Wall -Wextra
 
 PART1 = part1
 PART2 = part2
