@@ -2,12 +2,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <stack>
 #include <regex>
 #include <cmath>
 #include <climits>
-#include <numeric>
-#include <algorithm>
 
 using namespace std;
 
@@ -183,6 +180,6 @@ int main(int argc, char *argv[])
 
     input_file.close();
 
-    printf("sum: %lldu\n", sum);
+    printf("sum: %llu\n", sum);
 }
 
