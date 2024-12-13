@@ -5,6 +5,7 @@
 #include <regex>
 
 #define LL long long
+#define ULL unsigned long long
 
 using namespace std;
 
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
     vector<pair<LL, LL>> buttonA;
     vector<pair<LL, LL>> buttonB;
     vector<pair<LL, LL>> prize;
-    LL sum = 0;
+    ULL sum = 0;
 
     if (!input_file) 
     {
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     }
 
     string line;
-    LL idx = 0;
+    int idx = 0;
 
     regex buttonPattern(R"(X[=+](\d+), Y[=+](\d+))");
     regex prizePattern(R"(X=(\d+), Y=(\d+))");
@@ -81,7 +82,7 @@ int main(int argc, char *argv[])
     }
 
 
-    for (LL i = 0; i < buttonA.size(); i++)
+    for (int i = 0; i < buttonA.size(); i++)
     {
         pair<LL, LL> buttons = cramer(buttonA[i].first, buttonB[i].first, buttonA[i].second, buttonB[i].second, prize[i].first, prize[i].second);
         if ((buttonA[i].first * buttons.first + buttonB[i].first * buttons.second == prize[i].first) && (buttonA[i].second * buttons.first + buttonB[i].second * buttons.second == prize[i].second))
@@ -97,6 +98,6 @@ int main(int argc, char *argv[])
 
     input_file.close();
 
-    printf("sum: %lld\n", sum);
+    printf("sum: %llu\n", sum);
 }
 
