@@ -183,6 +183,6 @@ int main(int argc, char *argv[])
 
     input_file.close();
 
-    printf("sum: %llu\n", sum);
+    printf("sum: %lldu\n", sum);
 }
 

@@ -92,16 +92,16 @@ int main(int argc, char *argv[])
         if ((buttonA[i].first * buttons.first + buttonB[i].first * buttons.second == prize[i].first) && (buttonA[i].second * buttons.first + buttonB[i].second * buttons.second == prize[i].second))
         {
             sum += (3 * buttons.first + buttons.second);
-            //printf("valid: %ll, %ll\n", buttons.first, buttons.second);
+            //printf("valid: %lld, %lld\n", buttons.first, buttons.second);
         }
         else 
         {
-            //printf("invalid: %ll, %ll\n", buttons.first, buttons.second);
+            //printf("invalid: %lld, %lld\n", buttons.first, buttons.second);
         }
     }
 
     input_file.close();
 
-    printf("sum: %ll\n", sum);
+    printf("sum: %lld\n", sum);
 }
 
