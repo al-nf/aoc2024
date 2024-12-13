@@ -2,12 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <stack>
 #include <regex>
-#include <cmath>
-#include <climits>
-#include <numeric>
-#include <algorithm>
 
 #define LL long long
 
