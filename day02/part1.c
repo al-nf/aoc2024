@@ -24,8 +24,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Cannot open file: %s\n", argv[1]);
         exit(EXIT_FAILURE);
     }
-
-    // whoever made fgets needs to be viciously punished
+// whoever made fgets needs to be viciously punished
     while (fgets(buffer, MAX_LINE_LENGTH, fp) != NULL)
     {
         char *ptr = buffer; 

@@ -58,5 +58,5 @@ int main(int argc, char *argv[])
     }
 
     fclose(fp);
-    printf("sum: %lld\n", sum);
+    printf("sum: %llu\n", sum);
 }
