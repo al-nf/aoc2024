@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <thread>
+#include <chrono>
 
 #define ROWS 101
 #define COLS 103
@@ -10,7 +12,6 @@
 #define ULL unsigned long long
 
 using namespace std;
-
 
 pair<int, int> pos(pair<pair<int, int>, pair<int, int>> &robot, int t)
 {
