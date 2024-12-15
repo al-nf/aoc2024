@@ -4,12 +4,13 @@
 #include <string>
 #include <regex>
 
-#define ROWS 103
-#define COLS 101
+#define ROWS 101
+#define COLS 103
 
 #define ULL unsigned long long
 
 using namespace std;
+
 
 pair<int, int> pos(pair<pair<int, int>, pair<int, int>> &robot, int t)
 {
@@ -18,10 +19,13 @@ pair<int, int> pos(pair<pair<int, int>, pair<int, int>> &robot, int t)
     int vx = robot.second.first;
     int vy = robot.second.second;
 
-    int nx = ((px + vx * t) % ROWS + ROWS) % ROWS;
-    int ny = ((py + vy * t) % COLS + COLS) % COLS;
+    //int testx = (((px + vx * 2) % ROWS) + ROWS) % ROWS;
+    //int testy = (((py + vy * 2) % COLS) + COLS) % COLS;
 
-    printf("Robot after time %d: %d, %d\n", t, nx, ny);
+    int nx = (((px + vx * t) % ROWS) + ROWS) % ROWS;
+    int ny = (((py + vy * t) % COLS) + COLS) % COLS;
+
+    //printf("Before: %d, %d\n After: %d, %d\n Velocities: %d, %d\n After 2 seconds: %d, %d\n\n", px, py, nx, ny, vx, vy, testx,testy);
 
     return make_pair(nx, ny);
 }
@@ -66,8 +70,12 @@ ULL safety(vector<pair<pair<int,int>, pair<int,int>>> &robots, int t)
         }
     }
 
-    cout << data[0] << ' ' << data[1] << ' ' << data[2] << ' ' << data[3] << endl;
-    ULL result =  data[0] * data[1] * data[2] * data[3];
+    //cout << data[0] << ' ' << data[1] << ' ' << data[2] << ' ' << data[3] << endl;
+    ULL result = 1;
+    for (int i = 0; i < 4; i++)
+    {
+        result *= data[i];
+    }
     return result;
 }
 int main(int argc, char *argv[]) 
@@ -106,8 +114,6 @@ int main(int argc, char *argv[])
         }
     }
     input_file.close();
-
-
 
     printf("sum: %llu\n", safety(robots, 100));
 }
