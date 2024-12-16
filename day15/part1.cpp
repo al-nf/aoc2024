@@ -23,11 +23,11 @@ pair<int, int> getDir(char ch)
     return {0, 0};
 }
 
-bool isValid(int x, int y, const vector<vector<char>>& warehouse)
+bool isValid(int x, int y, const vector<vector<char>>& a)
 {
-    if (x >= 0 && x < warehouse.size() && y >= 0 && y < warehouse[0].size())
+    if (x >= 0 && x < a.size() && y >= 0 && y < a[0].size())
     {
-        if (warehouse[x][y] != '#')
+        if (a[x][y] != '#')
         {
             return true;
         }
@@ -36,14 +36,14 @@ bool isValid(int x, int y, const vector<vector<char>>& warehouse)
 
 }
 
-bool isThereSpaceToPushBoxes(const int& x, const int& y, const vector<vector<char>>& warehouse, char dir)
+bool isThereSpaceToPushBoxes(const int& x, const int& y, const vector<vector<char>>& a, char dir)
 {
     auto [dx, dy] = getDir(dir);
     int nx = x+dx;
     int ny = y+dy;
-    while (isValid(nx, ny, warehouse))
+    while (isValid(nx, ny, a))
     {
-        if (warehouse[nx][ny] == '.')
+        if (a[nx][ny] == '.')
             return true;
         nx += dx;
         ny += dy;
@@ -51,11 +51,11 @@ bool isThereSpaceToPushBoxes(const int& x, const int& y, const vector<vector<cha
     return false;
 }
 
-void pushBoxes(int& x, int& y, vector<vector<char>>& warehouse, char dir) 
+void pushBoxes(int& x, int& y, vector<vector<char>>& a, char dir) 
 {
     auto [dx, dy] = getDir(dir);
 
-    if (!isThereSpaceToPushBoxes(x, y, warehouse, dir)) 
+    if (!isThereSpaceToPushBoxes(x, y, a, dir)) 
     {
         return; 
     }
@@ -63,13 +63,13 @@ void pushBoxes(int& x, int& y, vector<vector<char>>& warehouse, char dir)
     int nx = x + dx;
     int ny = y + dy;
     
-    warehouse[x][y] = '.';
+    a[x][y] = '.';
     x = nx;
     y = ny;
 
     int boxes = 0;
 
-    while (warehouse[nx][ny] != '.')
+    while (a[nx][ny] != '.')
     {
         boxes++;
         nx += dx;
@@ -78,24 +78,24 @@ void pushBoxes(int& x, int& y, vector<vector<char>>& warehouse, char dir)
 
     nx = x;
     ny = y;
-    warehouse[x][y] = '@';
+    a[x][y] = '@';
     for (int i = 0; i < boxes; i++)
     {
         nx += dx;
         ny += dy;
-        warehouse[nx][ny] = 'O';
+        a[nx][ny] = 'O';
     }
 }
 
-void robot(vector<vector<char>>& warehouse, const vector<char>& moves) 
+void robot(vector<vector<char>>& a, const vector<char>& moves) 
 {
     int x, y; 
 
-    for (int i = 0; i < warehouse.size(); i++) 
+    for (int i = 0; i < a.size(); i++) 
     {
-        for (int j = 0; j < warehouse[0].size(); j++) 
+        for (int j = 0; j < a[0].size(); j++) 
         {
-            if (warehouse[i][j] == '@') {
+            if (a[i][j] == '@') {
                 x = i;
                 y = j;
                 break;
@@ -108,21 +108,21 @@ void robot(vector<vector<char>>& warehouse, const vector<char>& moves)
         int nx = x + dx; 
         int ny = y + dy;
 
-        if (isValid(nx, ny, warehouse)) 
+        if (isValid(nx, ny, a)) 
         {
-            if (warehouse[nx][ny] == '.') 
+            if (a[nx][ny] == '.') 
             { 
-                warehouse[nx][ny] = '@'; 
-                warehouse[x][y] = '.';  
+                a[nx][ny] = '@'; 
+                a[x][y] = '.';  
 
                 x = nx;
                 y = ny;
             } 
-            else if (warehouse[nx][ny] == 'O') 
+            else if (a[nx][ny] == 'O') 
             { 
-                if(isThereSpaceToPushBoxes(x, y, warehouse, move))
+                if(isThereSpaceToPushBoxes(x, y, a, move))
                 {
-                    pushBoxes(x, y, warehouse, move);
+                    pushBoxes(x, y, a, move);
                 }
             }
         }
@@ -134,16 +134,16 @@ int distance(int x, int y)
     return(100 * x + y);
 }
 
-ULL gps(vector<vector<char>>& warehouse)
+ULL gps(vector<vector<char>>& a)
 {
     ULL sum = 0;
     vector<pair<int, int>> boxes;
     
-    for (int i = 0; i < warehouse.size(); i++)
+    for (int i = 0; i < a.size(); i++)
     {
-        for (int j = 0; j < warehouse[0].size(); j++)
+        for (int j = 0; j < a[0].size(); j++)
         {
-            if (warehouse[i][j] == 'O')
+            if (a[i][j] == 'O')
             {
                 boxes.push_back(make_pair(i,j));
             }
@@ -160,7 +160,7 @@ ULL gps(vector<vector<char>>& warehouse)
 int main(int argc, char *argv[]) 
 {
     ifstream input_file(argv[1]);
-    vector<vector<char>> warehouse;
+    vector<vector<char>> a;
     vector<char> moves;
 
     if (!input_file) 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
             break;
         }
         vector<char> row(line.begin(), line.end());
-        warehouse.push_back(row);
+        a.push_back(row);
     }
 
     while (getline(input_file, line)) 
@@ -190,8 +190,8 @@ int main(int argc, char *argv[])
     }
     input_file.close();
 
-    robot(warehouse, moves);
+    robot(a, moves);
 
-    printf("sum: %llu\n", gps(warehouse)); 
+    printf("sum: %llu\n", gps(a)); 
 }
 
