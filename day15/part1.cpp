@@ -36,7 +36,7 @@ bool isValid(int x, int y, const vector<vector<char>>& warehouse)
 
 }
 
-bool isThereSpaceToPushBoxes(int& x, int& y, const vector<vector<char>>& warehouse, char dir)
+bool isThereSpaceToPushBoxes(const int& x, const int& y, const vector<vector<char>>& warehouse, char dir)
 {
     auto [dx, dy] = getDir(dir);
     int nx = x+dx;

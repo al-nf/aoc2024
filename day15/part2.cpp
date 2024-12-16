@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <climits>
 
 #define ULL unsigned long long
 
@@ -65,13 +67,9 @@ void convertMap(vector<vector<char>>& warehouse)
     warehouse.assign(newMap.begin(), newMap.end());
 }
 
-bool inBounds(int x, int y, const vector<vector<char>>& warehouse)
-{
-    return (x >= 0 && x < warehouse.size() && y >= 0 && y < warehouse[0].size());
-}
 bool isValid(int x, int y, const vector<vector<char>>& warehouse)
 {
-    if (inBounds(x, y, warehouse))
+    if (x >= 0 && x < warehouse.size() && y >= 0 && y < warehouse[0].size())
     {
         if (warehouse[x][y] != '#')
         {
@@ -82,46 +80,71 @@ bool isValid(int x, int y, const vector<vector<char>>& warehouse)
 
 }
 
-bool boxTouchingTwoBoxes(int& x, int& y, const vector<vector<char>>& warehouse, char dir)
-{
-    if (dir == '<' || dir == '>')
-    {
-        return false;
-    }
-    else if (dir == '^')
-    {
-        if (!inBounds(x-2, y, warehouse))
-        {
-            return false;
-        }
-        if ((warehouse[x-1][y] == '[' && warehouse[x-2][y] == ']') || ((warehouse[x-1][y] == ']' && warehouse[x-2][y] == '[')))
-        {
-            printf("false positive here1!\n");
-            return true;
-        }
-        return false;
-    }
-    else if (dir == 'v')
-    {
-        if (!inBounds(x+2, y, warehouse))
-        {
-            return false;
-        }
-        if ((warehouse[x+1][y] == '[' && warehouse[x+2][y] == ']') || ((warehouse[x+1][y] == ']' && warehouse[x+2][y] == '[')))
-        {
-            printf("false positive here2!\n");
-            return true;
-        }
-        return false;
-    }
-
-}
-bool isThereSpaceToPushBoxesHorizontally(int& x, int& y, const vector<vector<char>>& warehouse, char dir)
+int boxTouchingTwoBoxes(const int& x, const int& y, const vector<vector<char>>& warehouse, char dir)
 {
     auto [dx, dy] = getDir(dir);
-    int nx = x;
-    int ny = y;
+    int nx = x + dx;
+    int ny = y + dy;
+    int next = 0;
+    char box = warehouse[nx][ny];
+    char opposite;
+    if (box == '[')
+    {
+        next++;
+        opposite = ']';
+    }
+    if (box == ']')
+    {
+        next--;
+        opposite = '[';
+    }
+    
 
+    // case -1: there are no boxes period
+    if (!(isValid(nx, ny, warehouse) && isValid(nx, ny+next, warehouse)))
+    {
+        printf("PANIC!!!222\n");
+        return -1;
+    }
+    // case 0: there are no boxes above
+    if (isValid(nx+dx,ny+dy,warehouse) && isValid(nx+dx,ny+dy+next,warehouse) && warehouse[nx+dx][ny+dy] == '.' && warehouse[nx+dx][ny+dy+next] == '.')
+    {
+        printf("CASE 0 REACHED\n");
+        return 0;
+    }
+    // case 1: there is one box down the middle
+    if (isValid(nx+dx,ny+dy,warehouse) && isValid(nx+dx,ny+dy+next,warehouse) && warehouse[nx+dx][ny+dy] == box && warehouse[nx+dx][ny+dy+next] == opposite)
+    {
+        printf("CASE 1 REACHED\n");
+        return 1;
+    }
+    // case 2: there are two boxes down the middle
+    if (isValid(nx+dx, ny+dy-next, warehouse) && isValid(nx+dx, ny+dy, warehouse) && isValid(nx+dx, ny+dy+next, warehouse) && isValid(nx+dx, ny+dy+(2*next), warehouse) && warehouse[nx+dx][ny+dy-next] == box && warehouse[nx+dx][ny+dy] == opposite && warehouse[nx+dx][ny+dy+next] == box && warehouse[nx+dx][ny+dy+(2*next)] == opposite)
+    {
+        printf("CASE 2 REACHED\n");
+        return 2;
+    }
+    // case 3: there is one box opposite of @
+    if (isValid(nx+dx,ny+dy,warehouse) && isValid(nx+dx,ny+dy+next,warehouse) && warehouse[nx+dx][ny+dy] == '.' && warehouse[nx+dx][ny+dy+next] == box)
+    {
+        printf("CASE 3 REACHED\n");
+        return 3;
+    }
+    // case 4: there is one box on the side of @
+    if (isValid(nx+dx,ny+dy,warehouse) && isValid(nx+dx,ny+dy+next,warehouse) && warehouse[nx+dx][ny+dy] == opposite && warehouse[nx+dx][ny+dy+next] == '.')
+    {
+        printf("CASE 4 REACHED\n");
+        return 4;
+    }
+    printf("IDFK EITHER\n");
+    return 99; //WTF?
+
+}
+bool isThereSpaceToPushBoxesHorizontally(const int& x, const int& y, const vector<vector<char>>& warehouse, char dir)
+{
+    auto [dx, dy] = getDir(dir);
+    int nx = x+dx;
+    int ny = y+dy;
     while (isValid(nx, ny, warehouse))
     {
         if (warehouse[nx][ny] == '.')
@@ -132,167 +155,226 @@ bool isThereSpaceToPushBoxesHorizontally(int& x, int& y, const vector<vector<cha
     return false;
 }
 
-bool isThereSpaceToPushBoxesVertically(int& x, int& y, const vector<vector<char>>& warehouse, char dir)
+bool isThereSpaceToPushBoxesVertically(const int& x, const int& y, const vector<vector<char>>& warehouse, char dir)
 {
     auto [dx, dy] = getDir(dir);
     int nx = x+dx;
     int ny = y+dy;
 
-    printf("\nNX: %d, NY: %d\n", nx, ny);
+    int next = 0;
+    char box = warehouse[nx][ny];
 
-    char ya = warehouse[nx][ny];
-
-    if (!boxTouchingTwoBoxes(x, y, warehouse, dir))
+    if (box == '[')
     {
-        printf("aligned case isSpace\n");
-        if (ya == '[')
-        {
-            if (dir == '^')
-            {
-                while (isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse))
-                {
-                    if (warehouse[nx][ny] == '.' && warehouse[nx][ny+1] == '.')
-                    {
-                        return true;
-                    }
-                    nx--;
-                }
-                printf("eee\n");
-                return false;
-            }
-            else
-            {
-                while (isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse))
-                {
-                    if (warehouse[nx][ny] == '.' && warehouse[nx][ny+1] == '.')
-                    {
-                        return true;
-                    }
-                    nx++;
-                }
-                printf("fff\n");
-                return false;
-            }
-        }
-        else
-        {
-            printf("testing space at (%d, %d) and (%d, %d)!\n", nx, ny, nx, ny-1);
-            if (dir == '^')
-            {
-                while (isValid(nx, ny, warehouse) && isValid(nx, ny-1, warehouse))
-                {
-                    if (warehouse[nx][ny] == '.' && warehouse[nx][ny-1] == '.')
-                    {
-                        printf("There is space at (%d, %d) and (%d, %d)!\n", nx, ny, nx, ny-1);
-                        return true;
-                    }
-                    nx--;
-                }
-                printf("ggg\n");
-                return false;
-            }
-            else
-            {
-                while (isValid(nx, ny, warehouse) && isValid(nx, ny-1, warehouse))
-                {
-                    if (warehouse[nx][ny] == '.' && warehouse[nx][ny-1] == '.')
-                    {
-                        return true;
-                    }
-                    nx++;
-                }
-                printf("hhh\n");
-                return false;
-            }
-        }
-        return false;
+        next++;
     }
-    else
+    if (box == ']')
     {
-        nx += 2 *dx;
-        ny += 2 * dy;
-        printf("2box case isSpace\n");
-        if (ya == '[')
+        next--;
+    }
+
+    int what = boxTouchingTwoBoxes(x, y, warehouse, dir);
+
+    bool and0 = false;
+    bool and1 = false;
+    bool and2 = false;
+    bool and3 = false;
+
+    switch (what)
+    {
+        // There are no boxes...?
+        case -1:
         {
-            if (isValid(x + 2 * dx, y + 2 * dy, warehouse) && isValid(x + 2 * dx, y + 2 * dy+1, warehouse) && warehouse[x + 2 * dx][y + 2 * dy] == '.' && warehouse[x + 2 * dx][y + 2 * dy+1] == '.')
+            printf("PANIC!!!\n");
+            return true;
+        }
+        // There are no boxes down
+        case 0:
+        {
+            return true;
+        }
+        // There is one box down the middle
+        case 1:
+        {
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny, warehouse))
+            {
+                if (warehouse[nx][ny] == '.')
+                    and0 = true;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny + next, warehouse))
+            {
+                if (warehouse[nx][ny + next] == '.')
+                    and1 = true;
+                nx += dx;
+                ny += dy;
+            }
+            if (and0 && and1)
             {
                 return true;
             }
-            if (dir == '^')
-            {
-                while (isValid(nx, ny-1, warehouse) && isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse) && isValid(nx, ny+2, warehouse))
-                {
-                    if (warehouse[nx][ny-1] == '.' && warehouse[nx][ny] == '.' && warehouse[nx][ny+1] == '.' && warehouse[nx][ny+2] == '.')
-                    {
-                        printf("%c, %c, %c, %c\n", warehouse[nx][ny-1], warehouse[nx][ny] ,warehouse[nx][ny+1] ,warehouse[nx][ny+2] );
-                        printf("(%d, %d), (%d, %d),(%d, %d),(%d, %d)\n", nx, ny-1, nx, ny, nx,ny+1,nx,ny+2);
-                        printf("There is space!\n");
-                        return true;
-                    }
-                    nx--;
-                }
-                printf("eee\n");
-                return false;
-            }
-            else
-            {
-                while (isValid(nx, ny-1, warehouse) && isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse) && isValid(nx, ny+2, warehouse))
-                {
-                    if (warehouse[nx-1][ny] == '.' && warehouse[nx][ny] == '.' && warehouse[nx+1][ny] == '.' && warehouse[nx+2][ny] == '.')
-                    {
-                        printf("%c, %c, %c, %c\n", warehouse[nx][ny-1], warehouse[nx][ny] ,warehouse[nx][ny+1] ,warehouse[nx][ny+2] );
-                        printf("(%d, %d), (%d, %d),(%d, %d),(%d, %d)\n", nx, ny-1, nx, ny, nx,ny+1,nx,ny+2);
-                        printf("There is space!\n");
-                        return true;
-                    }
-                    nx++;
-                }
-                printf("fff\n");
-                return false;
-            }
+            return false;
         }
-        else
+        // There are two boxes down the middle
+        case 2:
         {
-            if (isValid(x + 2 * dx, y + 2 * dy, warehouse) && isValid(x + 2 * dx, y + 2 * dy-1, warehouse) && warehouse[x + 2 * dx][y + 2 * dy] == '.' && warehouse[x + 2 * dx][y + 2 * dy-1] == '.')
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny - next, warehouse))
+            {
+                if (warehouse[nx][ny - next] == '.')
+                {
+                    printf("condition 0: . found at %d, %d\n", nx,ny-next);
+                    and0 = true;
+                }
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny, warehouse))
+            {
+                if (warehouse[nx][ny] == '.')
+                {
+                    printf("condition 1: . found at %d, %d\n", nx,ny);
+                    and1 = true;
+                }
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny + next, warehouse))
+            {
+                if (warehouse[nx][ny + next] == '.')
+                {
+                    printf("condition 2: . found at %d, %d\n", nx,ny+next);
+                    and2 = true;
+                }
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny + (2 * next), warehouse))
+            {
+                if (warehouse[nx][ny + (2 * next)] == '.')
+                {
+                    printf("condition 3: . found at %d, %d\n", nx,ny + (2*next));
+                    and3 = true;
+                }
+                nx += dx;
+                ny += dy;
+            }
+            if (and0 && and1 && and2 && and3)
+            {
+                printf("THERE IS SPACE!\n");
+                return true;
+            }
+            return false;
+        }
+        // There is one box opposite of @
+        case 3:
+        {
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny + next, warehouse))
+            {
+                if (warehouse[nx][ny + next] == '.')
+                    and0 = true;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny + (2 * next), warehouse))
+            {
+                if (warehouse[nx][ny + (2 * next)] == '.')
+                    and1 = true;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            if (isValid(nx+dx, ny, warehouse) && warehouse[nx+dx][ny] == '.')
+                and2 = true;
+
+            if (and0 && and1 && and2)
             {
                 return true;
             }
-            if (dir == 'v')
-            {
-                while (isValid(nx, ny-2, warehouse) && isValid(nx, ny-1, warehouse) && isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse))
-                {
-                    if (warehouse[nx-1][ny] == '.' && warehouse[nx][ny] == '.' && warehouse[nx+1][ny] == '.' && warehouse[nx+2][ny] == '.')
-                    {
-                        printf("%c, %c, %c, %c\n", warehouse[nx][ny-2], warehouse[nx][ny-1] ,warehouse[nx][ny] ,warehouse[nx][ny+1] );
-                        printf("(%d, %d), (%d, %d),(%d, %d),(%d, %d)\n", nx, ny-2, nx, ny-1, nx,ny,nx,ny+1);
-                        printf("There is space!\n");
-                        return true;
-                    }
-                    nx--;
-                }
-                printf("ggg\n");
-                return false;
-            }
-            else
-            {
-                while (isValid(nx, ny-2, warehouse) && isValid(nx, ny-1, warehouse) && isValid(nx, ny, warehouse) && isValid(nx, ny+1, warehouse))
-                {
-                    if (warehouse[nx-1][ny] == '.' && warehouse[nx][ny] == '.' && warehouse[nx+1][ny] == '.' && warehouse[nx+2][ny] == '.')
-                    {
-                        printf("%c, %c, %c, %c\n", warehouse[nx][ny-2], warehouse[nx][ny-1] ,warehouse[nx][ny] ,warehouse[nx][ny+1] );
-                        printf("(%d, %d), (%d, %d),(%d, %d),(%d, %d)\n", nx, ny-2, nx, ny-1, nx,ny,nx,ny+1);
-                        printf("There is space!\n");
-                        return true;
-                    }
-                    nx++;
-                }
-                printf("hhh\n");
-                return false;
-            }
+            return false;
         }
-        return false;
+        // There is one box on the side of @
+        case 4:
+        {
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny, warehouse))
+            {
+                if (warehouse[nx][ny] == '.')
+                    and0 = true;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            while (isValid(nx, ny - next, warehouse))
+            {
+                if (warehouse[nx][ny - next] == '.')
+                    and1 = true;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            nx += dx;
+            ny += dy;
+            if (isValid(nx+dx, ny+next, warehouse) && warehouse[nx+dx][ny+next] == '.')
+                and2 = true;
+
+            if (and0 && and1 && and2)
+            {
+                return true;
+            }
+            return false;
+        }
+        case 99:
+        {
+            printf("PANIC!!!\n");
+            return false;
+        }
     }
+    return false;
 }
+
 void pushBoxesHorizontally(int& x, int& y, vector<vector<char>>& warehouse, char dir) 
 {
     auto [dx, dy] = getDir(dir);
@@ -306,8 +388,6 @@ void pushBoxesHorizontally(int& x, int& y, vector<vector<char>>& warehouse, char
     int ny = y + dy;
     
     warehouse[x][y] = '.';
-    x = nx;
-    y = ny;
 
     int boxes = 0;
 
@@ -319,9 +399,10 @@ void pushBoxesHorizontally(int& x, int& y, vector<vector<char>>& warehouse, char
         ny += dy;
     }
 
-    nx = x;
-    ny = y;
-    warehouse[x][y] = '@';
+    nx = x + dx;
+    ny = y + dy;
+
+    warehouse[nx][ny] = '@';
     for (int i = 0; i < boxes; i++)
     {
         nx += dx;
@@ -350,114 +431,271 @@ void pushBoxesHorizontally(int& x, int& y, vector<vector<char>>& warehouse, char
             }
         }
     }
+    x += dx;
+    y += dy;
 }
-void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char dir) 
+
+void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char dir)
 {
     auto [dx, dy] = getDir(dir);
+    int nx = x+dx;
+    int ny = y+dy;
 
-    if (!isThereSpaceToPushBoxesVertically(x, y, warehouse, dir)) 
+    int next = 0;
+    char box = warehouse[nx][ny];
+    char opposite;
+    int boxes;
+    int boxes0 = 1;
+    int boxes1 = 1;
+    int boxes2 = 1;
+    int boxes3 = 1;
+
+    if (box == '[')
     {
-        printf("no space!\n");
-        return; 
+        next++;
+        opposite = ']';
+    }
+    if (box == ']')
+    {
+        next--;
+        opposite = '[';
     }
 
-    printf("dx: %d, dy: %d\n", dx, dy);
-    int nx = x + dx;
-    int ny = y + dy;
-    
-    warehouse[x][y] = '.';
-    x = nx;
-    y = ny;
+    int what = boxTouchingTwoBoxes(x, y, warehouse, dir);
 
-    int boxes = 0;
-
-    char ya = warehouse[nx][ny];
-    while (isValid(nx, ny, warehouse) && warehouse[nx][ny] != '.')
+    if (!isThereSpaceToPushBoxesVertically(x, y, warehouse, dir))
     {
-        boxes++;
-        nx += dx;
-        ny += dy;
+        return;
     }
-    printf("boxes: %d\n", boxes);
 
-    nx = x + dx;
-    ny = y + dy;
-
-    if (boxTouchingTwoBoxes(x, y, warehouse, dir))
+    switch (what)
     {
-        printf("two boxes touching case\n");
-        if (ya == '[')
+        // There are no boxes
+        case -1:
         {
-            if (isValid(x,y,warehouse) && isValid(x,y+1,warehouse) && isValid(nx,ny-1,warehouse) && isValid(nx,ny,warehouse) && isValid(nx,ny+1,warehouse) && isValid(nx,ny+2,warehouse))
-            {
-                warehouse[x][y] = '@';
-                warehouse[x][y+1] = '.';
-                warehouse[nx][ny-1] = '.';
-                warehouse[nx][ny] = '[';
-                warehouse[nx][ny+1] = ']';
-                warehouse[nx][ny+2] = '.';
-                for (int i = 2; i <= boxes; i++)
-                {
-                    if (isValid(nx+i*dx,ny-1,warehouse) && isValid(nx+i*dx,ny,warehouse) && isValid(nx+i*dx,ny+1,warehouse) && isValid(nx+i*dx,ny+2,warehouse))
-                    {
-                        warehouse[nx + i * dx][ny-1] = '[';
-                        warehouse[nx + i * dx][ny] = ']';
-                        warehouse[nx + i * dx][ny+1] = '[';
-                        warehouse[nx + i * dx][ny+2] = ']';
-                    }
-                }
-            }
+            printf("PANIC!!!\n");
+            return;
         }
-        else
+        // There are no boxes down
+        case 0:
         {
-            if (isValid(x,y,warehouse) && isValid(x,y-1,warehouse) && isValid(nx,ny-2,warehouse) && isValid(nx,ny-1,warehouse) && isValid(nx,ny,warehouse) && isValid(nx,ny+1,warehouse))
-            {
-                warehouse[x][y] = '@';
-                warehouse[x][y-1] = '.';
-                warehouse[nx][ny-2] = '.';
-                warehouse[nx][ny] = ']';
-                warehouse[nx][ny-1] = '[';
-                warehouse[nx][ny+1] = '.';
-                for (int i = 1; i < boxes; i++)
-                {
-                    if (isValid(nx+i*dx,ny-2,warehouse) && isValid(nx+i*dx,ny-1,warehouse) && isValid(nx+i*dx,ny,warehouse) && isValid(nx+i*dx,ny+1,warehouse))
-                    {
-                        warehouse[nx + i * dx][ny-2] = '[';
-                        warehouse[nx + i * dx][ny-1] = ']';
-                        warehouse[nx + i * dx][ny] = '[';
-                        warehouse[nx + i * dx][ny+1] = ']';
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        printf("aligned case\n");
-        if (ya == '[')
-        {
+            warehouse[nx+dx][ny+dy] = box;
+            warehouse[nx+dx][ny+dy+next] = opposite;
             warehouse[nx][ny] = '@';
-            warehouse[nx][ny+1] = '.';
-            for (int i = 1; i <= boxes; i++)
-            {
-                if (isValid(nx+i*dx, ny, warehouse) && isValid(nx+i*dx, ny+1, warehouse))
-                    warehouse[nx + i * dx][ny] = '[';
-                    warehouse[nx + i * dx][ny+1] = ']';
-                    warehouse[nx-dx][ny-dy] = '.';
-                    warehouse[nx-dx][ny-dy+1] = '.';
-            }
+            warehouse[nx][ny+next] = '.';
+            warehouse[x][y] = '.';
+            x += dx;
+            y += dy;
+            return;
         }
-        else
+        // There is one box down the middle
+        case 1:
         {
-            warehouse[nx][ny] = '@';
-            warehouse[nx][ny-1] = '.';
-            for (int i = 1; i <= boxes; i++)
+            while (isValid(nx, ny, warehouse) && warehouse[nx][ny] == box)
             {
-                if (isValid(nx+i*dx, ny, warehouse))
-                    warehouse[nx + i * dx][ny] = '[';
-                if (isValid(nx+i*dx, ny-1, warehouse))
-                    warehouse[nx + i * dx][ny-1] = ']';
+                boxes0++;
+                nx += dx;
+                ny += dy;
             }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny, warehouse) && warehouse[nx][ny+next] == opposite)
+            {
+                boxes1++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            boxes = boxes0 < boxes1 ? boxes0 : boxes1;
+
+            for (int i = 0; i < boxes; i++)
+            {
+                warehouse[nx+dx][ny+dy] = box;
+                warehouse[nx+dx][ny+dy+next] = opposite;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            warehouse[nx][ny] = '@';
+            warehouse[nx][ny+next] = '.';
+            warehouse[x][y] = '.';
+            x += dx;
+            y += dy;
+            return;
+        }
+        // There are two boxes down the middle
+        case 2:
+        {
+            while (isValid(nx, ny-next, warehouse) && warehouse[nx][ny-next] == box)
+            {
+                boxes0++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny, warehouse) && warehouse[nx][ny] == opposite)
+            {
+                boxes1++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny+next, warehouse) && warehouse[nx][ny+next] == box)
+            {
+                boxes2++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny+(2*next), warehouse) && warehouse[nx][ny+(2*next)] == opposite)
+            {
+                boxes3++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            boxes = INT_MAX;
+            if (boxes > boxes0)
+                boxes = boxes0;
+            if (boxes > boxes1)
+                boxes = boxes1;
+            if (boxes > boxes2)
+                boxes = boxes2;
+            if (boxes > boxes3)
+                boxes = boxes3;
+
+            nx += dx;
+            ny += dy;
+            for (int i = 0; i < boxes; i++)
+            {
+                warehouse[nx+dx][ny+dy-next] = box;
+                warehouse[nx+dx][ny+dy] = opposite;
+                warehouse[nx+dx][ny+dy+next] = box;
+                warehouse[nx+dx][ny+dy+(2*next)] = opposite;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            warehouse[nx+dx][ny+dy-next] = '.';
+            warehouse[nx+dx][ny+dy+(2*next)] = '.';
+            warehouse[nx+dx][ny+dy] = box;
+            warehouse[nx+dx][ny+dy+next] = opposite;
+            warehouse[nx][ny] = '@';
+            warehouse[nx][ny+next] = '.';
+            warehouse[x][y] = '.';
+            x += dx;
+            y += dy;
+            return;
+        }
+        // There is one box opposite of @
+        case 3:
+        {
+            while (isValid(nx, ny+next, warehouse) && warehouse[nx][ny+next] == box)
+            {
+                boxes0++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny+(2*next), warehouse) && warehouse[nx][ny+(2*next)] == opposite)
+            {
+                boxes1++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            boxes = boxes0 < boxes1 ? boxes0 : boxes1;
+
+            nx += dx;
+            ny += dy;
+            for (int i = 0; i < boxes; i++)
+            {
+                warehouse[nx+dx][ny+dy+next] = box;
+                warehouse[nx+dx][ny+dy+(2*next)] = opposite;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            warehouse[nx+dx][ny+dy] = box;
+            warehouse[nx+dx][ny+dy+next] = opposite;
+            warehouse[nx+dx][ny+dy+(2*next)] = '.';
+            warehouse[nx][ny] = '@';
+            warehouse[nx][ny+next] = '.';
+            warehouse[x][y] = '.';
+            x += dx;
+            y += dy;
+            return;
+        }
+        // There is one box on the side of @
+        case 4:
+        {
+            while (isValid(nx, ny, warehouse) && warehouse[nx][ny] == opposite)
+            {
+                boxes0++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            while (isValid(nx, ny-next, warehouse) && warehouse[nx][ny-next] == box)
+            {
+                boxes1++;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            boxes = boxes0 < boxes1 ? boxes0 : boxes1;
+
+            nx += dx;
+            ny += dy;
+            for (int i = 0; i < boxes; i++)
+            {
+                warehouse[nx+dx][ny+dy] = opposite;
+                warehouse[nx+dx][ny+dy-next] = box;
+                nx += dx;
+                ny += dy;
+            }
+            nx = x + dx;
+            ny = y + dy;
+
+            warehouse[nx+dx][ny+dy-next] = '.';
+            warehouse[nx+dx][ny+dy] = box;
+            warehouse[nx+dx][ny+dy+next] = opposite;
+            warehouse[nx][ny] = '@';
+            warehouse[nx][ny+next] = '.';
+            warehouse[x][y] = '.';
+            x += dx;
+            y += dy;
+            return;
+        }
+        case 99:
+        {
+            printf("PANIC!!!\n");
+            return;
         }
     }
 }
@@ -482,8 +720,8 @@ void robot(vector<vector<char>>& warehouse, const vector<char>& moves)
         auto [dx, dy] = getDir(move);
         int nx = x + dx; 
         int ny = y + dy;
-        
-        printf("BEFORE: \n");
+
+        printf("MOVE: %c\n", move);
         for (int i = 0; i < warehouse.size(); i++)
         {
             for (int j = 0; j < warehouse[0].size(); j++)
@@ -492,10 +730,8 @@ void robot(vector<vector<char>>& warehouse, const vector<char>& moves)
             }
             printf("\n");
         }
-
         if (isValid(nx, ny, warehouse)) 
         {
-            printf("COMMENCING MOVEMENT IN %c DIRECTION\n", move);
             if (warehouse[nx][ny] == '.') 
             { 
                 warehouse[nx][ny] = '@'; 
@@ -510,30 +746,18 @@ void robot(vector<vector<char>>& warehouse, const vector<char>& moves)
                 {
                     if(isThereSpaceToPushBoxesHorizontally(x, y, warehouse, move))
                     {
-                        printf("Pushing blocks horizontally\n");
                         pushBoxesHorizontally(x, y, warehouse, move);
                     }
                 }
-                else
+                if (move == '^' || move == 'v')
                 {
                     if(isThereSpaceToPushBoxesVertically(x, y, warehouse, move))
                     {
-                        printf("Pushing blocks vertically\n");
                         pushBoxesVertically(x, y, warehouse, move);
                     }
                 }
             }
         }
-        printf("\nAFTER: \n");
-        for (int i = 0; i < warehouse.size(); i++)
-        {
-            for (int j = 0; j < warehouse[0].size(); j++)
-            {
-                printf("%c ", warehouse[i][j]);
-            }
-            printf("\n");
-        }
-        printf("current pos: %d, %d\n", x, y);
     }
 }
 
@@ -601,6 +825,14 @@ int main(int argc, char *argv[])
     convertMap(warehouse);
     robot(warehouse, moves);
 
+    for (int i = 0; i < warehouse.size(); i++)
+    {
+        for (int j = 0; j < warehouse[0].size(); j++)
+        {
+            printf("%c ", warehouse[i][j]);
+        }
+        printf("\n");
+    }
     printf("sum: %llu\n", gps(warehouse)); 
 }
 
