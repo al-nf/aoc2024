@@ -445,10 +445,10 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
     char box = warehouse[nx][ny];
     char opposite;
     int boxes;
-    int boxes0 = 1;
-    int boxes1 = 1;
-    int boxes2 = 1;
-    int boxes3 = 1;
+    int boxes0 = 0;
+    int boxes1 = 0;
+    int boxes2 = 0;
+    int boxes3 = 0;
 
     if (box == '[')
     {
@@ -508,8 +508,10 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
             }
             nx = x + dx;
             ny = y + dy;
+            printf("%d, %d\n", boxes0, boxes1);
 
             boxes = boxes0 < boxes1 ? boxes0 : boxes1;
+            printf("boxes: %d\n", boxes);
 
             for (int i = 0; i < boxes; i++)
             {
@@ -531,6 +533,9 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
         // There are two boxes down the middle
         case 2:
         {
+            nx += dx;
+            ny += dy;
+            printf("%d, %d\n", nx, ny-next);
             while (isValid(nx, ny-next, warehouse) && warehouse[nx][ny-next] == box)
             {
                 boxes0++;
@@ -540,6 +545,9 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
             nx = x + dx;
             ny = y + dy;
 
+            nx += dx;
+            ny += dy;
+            printf("%d, %d\n", nx, ny);
             while (isValid(nx, ny, warehouse) && warehouse[nx][ny] == opposite)
             {
                 boxes1++;
@@ -549,6 +557,9 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
             nx = x + dx;
             ny = y + dy;
 
+            nx += dx;
+            ny += dy;
+            printf("%d, %d\n", nx, ny+next);
             while (isValid(nx, ny+next, warehouse) && warehouse[nx][ny+next] == box)
             {
                 boxes2++;
@@ -558,6 +569,9 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
             nx = x + dx;
             ny = y + dy;
 
+            nx += dx;
+            ny += dy;
+            printf("%d, %d\n", nx, ny+(2*next));
             while (isValid(nx, ny+(2*next), warehouse) && warehouse[nx][ny+(2*next)] == opposite)
             {
                 boxes3++;
@@ -576,6 +590,7 @@ void pushBoxesVertically(int& x, int& y, vector<vector<char>>& warehouse, char d
                 boxes = boxes2;
             if (boxes > boxes3)
                 boxes = boxes3;
+            printf("%d, %d, %d, %d\n", boxes0, boxes1, boxes2, boxes3);
 
             nx += dx;
             ny += dy;
