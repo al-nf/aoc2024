@@ -34,5 +34,7 @@
 |14-2|#####[^1] s|$O(nt)$| 
 |15-1|0.009 s|$O(kn)$|
 |15-2|0.004 s|$O(kn)$|
+|16-1|0.068 s|$O(n\log{n})$|
+|16-2|0.030 s|$O(n\log{n})$|
 
 [^1]: The execution time is the solution.
