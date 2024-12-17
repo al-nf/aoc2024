@@ -159,11 +159,11 @@ ULL gps(vector<vector<char>>& a)
 
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<vector<char>> a;
     vector<char> moves;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "error opening file" << endl;
         return 1;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     string line;
 
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         if (line.empty())
         {
@@ -181,14 +181,14 @@ int main(int argc, char *argv[])
         a.push_back(row);
     }
 
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         for (char c : line)
         {
             moves.push_back(c);
         }
     }
-    input_file.close();
+    inputFile.close();
 
     robot(a, moves);
 

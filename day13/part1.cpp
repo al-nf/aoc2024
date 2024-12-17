@@ -61,13 +61,13 @@ vector<tuple<int, int, int>> dioph(int ax, int bx, int c)
 
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<pair<int, int>> buttonA;
     vector<pair<int, int>> buttonB;
     vector<pair<int, int>> prize;
     unsigned long long sum = 0;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "error opening file" << endl;
         return 1;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     regex buttonPattern(R"(X[=+](\d+), Y[=+](\d+))");
     regex prizePattern(R"(X=(\d+), Y=(\d+))");
 
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         switch (idx % 4) 
         {
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    input_file.close();
+    inputFile.close();
 
     printf("sum: %llu\n", sum);
 }

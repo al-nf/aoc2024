@@ -117,22 +117,22 @@ void reindeer(vector<vector<char>>& map)
 
 int main(int argc, char* argv[])
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<vector<char>> map;
 
-    if (!input_file)
+    if (!inputFile)
     {
         cerr << "Error opening file" << endl;
         return 1;
     }
 
     string line;
-    while (getline(input_file, line))
+    while (getline(inputFile, line))
     {
         vector<char> row(line.begin(), line.end());
         map.push_back(row);
     }
-    input_file.close();
+    inputFile.close();
 
     reindeer(map);
 }

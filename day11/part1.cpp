@@ -54,18 +54,18 @@ unsigned long long stones(unsigned long long stone, int reps)
 
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<unsigned long long> data;
     unsigned long long sum = 0;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "error opening file" << endl;
         return 1;
     }
 
     string line;
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         stringstream ss(line);
         unsigned long long value;

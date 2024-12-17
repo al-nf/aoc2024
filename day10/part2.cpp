@@ -62,17 +62,17 @@ int findTrailPaths(vector<vector<int>> map)
 
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<vector<int>> data;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "error opening file" << endl;
         return 1; 
     }
 
     string line;
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         vector<int> row;
         for (char c : line) 

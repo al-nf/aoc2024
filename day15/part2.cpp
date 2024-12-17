@@ -129,18 +129,18 @@ int move(int x, int y, int dir, vector<vector<char>>& a, bool dry)
 
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<vector<char>> a;
     vector<char> moves;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "Error opening file" << endl;
         return 1;
     }
 
     string line;
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         if (line.empty())
             break;
@@ -148,14 +148,14 @@ int main(int argc, char *argv[])
         a.push_back(row);
     }
 
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         for (char c : line)
         {
             moves.push_back(c);
         }
     }
-    input_file.close();
+    inputFile.close();
 
     convertMap(a);
 

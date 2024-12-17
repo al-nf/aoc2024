@@ -81,11 +81,11 @@ ULL safety(vector<pair<pair<int,int>, pair<int,int>>> &robots, int t)
 }
 int main(int argc, char *argv[]) 
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<pair<pair<int,int>, pair<int,int>>> robots;
     ULL sum = 0;
 
-    if (!input_file) 
+    if (!inputFile) 
     {
         cerr << "error opening file" << endl;
         return 1;
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     string line;
     regex regex(R"(p=(-?\d+),(-?\d+)\s*v=(-?\d+),(-?\d+))");
 
-    while (getline(input_file, line)) 
+    while (getline(inputFile, line)) 
     {
         smatch matches;
         if (regex_search(line, matches, regex))
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
             );
         }
     }
-    input_file.close();
+    inputFile.close();
 
     printf("sum: %llu\n", safety(robots, 100));
 }
