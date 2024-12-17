@@ -12,11 +12,12 @@ pair<int, int> dir(int direction)
 {
     switch (direction % 4)
     {
-        case 0: return {0, 1}; 
+        case 0: return {0, 1};
         case 1: return {1, 0};
         case 2: return {0, -1};
         case 3: return {-1, 0};
     }
+    return {0, 0};
 }
 
 struct State
@@ -29,15 +30,13 @@ struct State
     }
 };
 
-int dijkstra(const vector<vector<char>>& map, int startX, int startY, int endX, int endY)
+
+void dijkstra(const vector<vector<char>>& map, int startX, int startY, int endX, int endY, vector<vector<vector<int>>>& dist)
 {
     int rows = map.size();
     int cols = map[0].size();
 
     priority_queue<State, vector<State>, greater<State>> openList;
-    vector<vector<vector<int>>> dist(rows, vector<vector<int>>(cols, vector<int>(4, INT_MAX)));
-    set<tuple<int, int, int>> visited;
-
     openList.push({0, startX, startY, 0});
     dist[startX][startY][0] = 0;
 
@@ -51,7 +50,7 @@ int dijkstra(const vector<vector<char>>& map, int startX, int startY, int endX, 
 
         if (x == endX && y == endY)
         {
-            return g;
+            return;
         }
 
         pair<int, int> moveDir = dir(direction);
@@ -80,8 +79,62 @@ int dijkstra(const vector<vector<char>>& map, int startX, int startY, int endX, 
             openList.push({g + 1000, x, y, newDirection});
         }
     }
+}
 
-    return -1;
+void bfsFromEnd(vector<vector<char>>& map, int startX, int startY, int endX, int endY, const vector<vector<vector<int>>>& dist)
+{
+    int rows = map.size();
+    int cols = map[0].size();
+
+    queue<tuple<int, int, int>> q;
+    vector<vector<bool>> path(rows, vector<bool>(cols, false));
+
+    for (int direction = 0; direction < 4; direction++)
+    {
+        if (dist[endX][endY][direction] != INT_MAX)
+        {
+            q.push({endX, endY, direction});
+        }
+    }
+
+    while (!q.empty())
+    {
+        auto [x, y, direction] = q.front();
+        q.pop();
+
+        path[x][y] = true;
+
+        pair<int, int> moveDir = dir(direction);
+        int nx = x - moveDir.first, ny = y - moveDir.second;
+
+        if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && map[nx][ny] != '#')
+        {
+            if (dist[nx][ny][direction] == dist[x][y][direction] - 1)
+            {
+                q.push({nx, ny, direction});
+            }
+        }
+
+        for (int turn = -1; turn <= 1; turn += 2)
+        {
+            int newDirection = (direction + turn + 4) % 4;
+            if (dist[x][y][newDirection] == dist[x][y][direction] - 1000)
+            {
+                q.push({x, y, newDirection});
+            }
+        }
+    }
+
+    int pathCount = 0;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (path[i][j])
+                pathCount++;
+        }
+    }
+    printf("sum: %d\n", pathCount);
 }
 
 void reindeer(vector<vector<char>>& map)
@@ -104,35 +157,31 @@ void reindeer(vector<vector<char>>& map)
         }
     }
 
-    int score = dijkstra(map, startX, startY, endX, endY);
-    if (score != -1)
-    {
-        printf("Shortest path cost: %d\n", score);
-    }
-    else
-    {
-        printf("No path found.\n");
-    }
+    vector<vector<vector<int>>> dist(map.size(), vector<vector<int>>(map[0].size(), vector<int>(4, INT_MAX)));
+
+    dijkstra(map, startX, startY, endX, endY, dist);
+    bfsFromEnd(map, startX, startY, endX, endY, dist);
 }
 
 int main(int argc, char* argv[])
 {
-    ifstream input_file(argv[1]);
+    ifstream inputFile(argv[1]);
     vector<vector<char>> map;
 
-    if (!input_file)
+    if (!inputFile)
     {
         cerr << "Error opening file" << endl;
         return 1;
     }
 
     string line;
-    while (getline(input_file, line))
+    while (getline(inputFile, line))
     {
         vector<char> row(line.begin(), line.end());
         map.push_back(row);
     }
-    input_file.close();
+    inputFile.close();
 
     reindeer(map);
 }
+
