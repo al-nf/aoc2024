@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
     string line;
     regex registerRegex("(Register [A-C]): (\\d+)");
-    regex programRegex("Program: (.+)"); 
+    regex instructionsRegex("Program: (.+)"); 
 
     while (getline(inputFile, line))
     {
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
             else if (reg == 'C')
                 registers[2] = value;
         }
-        else if (regex_match(line, match, programRegex))
+        else if (regex_match(line, match, instructionsRegex))
         {
             string instructionsLine = match[1].str();
             stringstream ss(instructionsLine);
