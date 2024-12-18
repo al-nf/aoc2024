@@ -38,5 +38,7 @@
 |16-2|0.030 s|$O(n\log{n})$|
 |17-1|0.005 s|$O(n)$|
 |17-2|0.007 s|$O(n)$|
+|18-1|0.030 s|$O(V+E(\log(V))$|
+|18-2|5.669 s|$O(n(V+E(\log(V)))$|
 
 [^1]: The execution time is the solution.
