@@ -7,18 +7,20 @@
 #include <cmath>
 #include <ranges>
 
+#define ULL unsigned long long 
+
 using namespace std;
 
-vector<int> program(vector<int>& registers, const vector<int>& instructions)
+vector<ULL> program(vector<ULL>& registers, const vector<ULL>& instructions)
 {
-    int opcode;
-    int operand;
-    vector<int> out;
-    for (int i = 0; i < instructions.size(); i += 2)
+    ULL opcode;
+    ULL operand;
+    vector<ULL> out;
+    for (ULL i = 0; i < instructions.size(); i += 2)
     {
         opcode = instructions[i];
-        const int operandLit = instructions[i+1];
-        operand = instructions[i+1];
+        const ULL operandLit = instructions[i + 1];
+        operand = instructions[i + 1];
 
         switch (operand)
         {
@@ -45,7 +47,7 @@ vector<int> program(vector<int>& registers, const vector<int>& instructions)
         {
             case 0:
             {
-                registers[0] /= (int)pow(2, operand);
+                registers[0] /= (1ULL << operand);
                 break;
             }
             case 1:
@@ -74,17 +76,17 @@ vector<int> program(vector<int>& registers, const vector<int>& instructions)
             }
             case 5:
             {
-                out.push_back(operand%8);
+                out.push_back(operand % 8);
                 break;
             }
             case 6:
             {
-                registers[1] = registers[0] / (int)pow(2, operand);
+                registers[1] = registers[0] / (1ULL << operand);
                 break;
             }
             case 7:
             {
-                registers[2] = registers[0] / (int)pow(2, operand);
+                registers[2] = registers[0] / (1ULL << operand);
                 break;
             }
         }
@@ -93,16 +95,15 @@ vector<int> program(vector<int>& registers, const vector<int>& instructions)
     return out;
 }
 
-
 int main(int argc, char *argv[])
 {
     ifstream inputFile(argv[1]);
-    vector<int> registers(3, 0); 
-    vector<int> instructions;
+    vector<ULL> registers(3, 0); 
+    vector<ULL> instructions;
 
     if (!inputFile)
     {
-        cerr << "error opening file" << endl;
+        cerr << "Error opening file" << endl;
         return 1;
     }
 
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
         if (regex_match(line, match, registerRegex))
         {
             char reg = match[1].str()[9]; 
-            int value = stoi(match[2].str()); 
+            ULL value = stoi(match[2].str()); 
             
             if (reg == 'A')
                 registers[0] = value;
@@ -139,36 +140,32 @@ int main(int argc, char *argv[])
         }
     }
     inputFile.close();
-    
 
-    vector<int> output = program(registers, instructions);
-    for (int num : output)
-    {
-        printf("%d ", num);
-    }
-    printf("\n");
-
-    int i = pow(8,output.size()-1);
+    ULL i = 0;
     registers[0] = i;
 
-    vector<int> out = program(registers, instructions);
-    while (out != output)
+    vector<ULL> out = program(registers, instructions);
+    for (int j = instructions.size()-1; j >= 0; j--)
     {
-        for (int j = output.size()-1; j >= 0; j--)
+        while (out[j] != instructions[j]) 
         {
-            while (out[j] != output[j])
+            printf("Digit %llu is currently %llu at %llu\n", j, out[j], i);
+            i += (1ULL << (3 * j)); 
+            registers[0] = i;
+            out = program(registers, instructions);
+            for (ULL num : out)
             {
-                i += pow(8, j);
-                registers[0] = i;
-                out = program(registers, instructions);
+                printf("%llu ", num);
             }
-            printf("Confirmed digit %d to be %d \n", j, out[j]);
+            printf("A: %llu\n", i);
         }
-        for (int num : out)
-        {
-            printf("%d ", num);
-        }
+        printf("Confirmed digit %llu to be %llu \n", j, out[j]);
     }
-    printf("A: %d\n", i);
+    
+    for (ULL num : out)
+    {
+        printf("%llu ", num);
+    }
+    printf("A: %llu\n", i);
 }
 
