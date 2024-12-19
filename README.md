@@ -40,5 +40,8 @@
 |17-2|0.007 s|$O(n)$|
 |18-1|0.030 s|$O(V+E(\log(V))$|
 |18-2|5.669 s|$O(n(V+E(\log(V)))$|
+|19-1|0.087 s|$O(DP^n)[^2]$|
+|19-2|0.307 s|$O(nDP^n)[^2]$|
 
 [^1]: The execution time is the solution.
+[^2]: D is the number of designs, P is the number of patterns, n is the length of the patterns
