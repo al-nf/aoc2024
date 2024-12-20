@@ -4,68 +4,23 @@
 #include <string>
 #include <climits>
 #include <queue>
-#include <map>
-#include <set>
+#include <utility>
 
 using namespace std;
 
-const int dx[] = {-1, 1, 0, 0};
-const int dy[] = {0, 0, -1, 1};
-
 typedef pair<int, int> Point;
 
-bool isValid(int x, int y, int rows, int cols, const vector<vector<char>>& grid)
+const int dx[] = {1, 0, -1, 0};
+const int dy[] = {0, 1, 0, -1};
+
+bool isValid(int x, int y, const vector<vector<char>>& grid, const vector<vector<bool>>& visited)
 {
-    return (x >= 0 && x < rows && y >= 0 && y < cols && grid[x][y] != '#');
+    return (x >= 0 && x < grid.size() && y >= 0 && y < grid[0].size() && grid[x][y] != '#' && !visited[x][y]);
 }
 
-int dijkstra(Point start, Point end, const vector<vector<char>>& grid)
+void solve(const vector<vector<char>>& grid)
 {
-    int n = grid.size();
-    int m = grid[0].size();
-    vector<vector<int>> dist(n, vector<int>(m, INT_MAX));
-    dist[start.first][start.second] = 0;
-
-    priority_queue<pair<int, Point>, vector<pair<int, Point>>, greater<>> pq;
-    pq.push({0, start});
-
-    while (!pq.empty())
-    {
-        auto [curDist, curPoint] = pq.top();
-        pq.pop();
-        int x = curPoint.first;
-        int y = curPoint.second;
-
-        if (x == end.first && y == end.second)
-        {
-            return curDist;
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = x + dx[i];
-            int ny = y + dy[i];
-
-            if (isValid(nx, ny, n, m, grid))
-            {
-                int newDist = curDist + 1;
-
-                if (newDist < dist[nx][ny])
-                {
-                    dist[nx][ny] = newDist;
-                    pq.push({newDist, {nx, ny}});
-                }
-            }
-        }
-    }
-
-    return INT_MAX;
-}
-
-void solve(vector<vector<char>>& grid)
-{
-    int sum = 0;
-    int startX, startY, endX, endY;
+    int startX = -1, startY = -1, endX = -1, endY = -1;
 
     for (int i = 0; i < grid.size(); i++)
     {
@@ -84,32 +39,66 @@ void solve(vector<vector<char>>& grid)
         }
     }
 
-    set<Point> uniqueCheats;
-
-    int timeBefore = dijkstra({startX, startY}, {endX, endY}, grid);
-
-    for (int x = 0; x < grid.size(); x++)
+    if (startX == -1 || startY == -1 || endX == -1 || endY == -1)
     {
-        for (int y = 0; y < grid[0].size(); y++)
+        cerr << "Start or End not found in the grid." << endl;
+        return;
+    }
+
+    vector<vector<bool>> visited(grid.size(), vector<bool>(grid[0].size(), false));
+    vector<vector<int>> distance(grid.size(), vector<int>(grid[0].size(), 0));
+    queue<Point> q;
+
+    q.push({startX, startY});
+    visited[startX][startY] = true;
+
+    while (!q.empty())
+    {
+        Point p = q.front();
+        q.pop();
+        int x = p.first, y = p.second;
+
+        for (int i = 0; i < 4; i++)
         {
-            if (grid[x][y] == '#')
+            int nx = x + dx[i], ny = y + dy[i];
+
+            if (isValid(nx, ny, grid, visited))
             {
-                Point wall = {x, y};
-                if (uniqueCheats.find(wall) == uniqueCheats.end())
+                visited[nx][ny] = true;
+                distance[nx][ny] = distance[x][y] + 1;
+                q.push({nx, ny});
+            }
+        }
+    }
+
+    int sum = 0;
+    vector<Point> reachablePoints;
+
+    for (int i = 0; i < grid.size(); i++)
+    {
+        for (int j = 0; j < grid[0].size(); j++)
+        {
+            if (visited[i][j] && grid[i][j] != 'S' && grid[i][j] != 'E')
+            {
+                reachablePoints.push_back({i, j});
+            }
+        }
+    }
+
+    for (size_t i = 0; i < reachablePoints.size(); i++)
+    {
+        for (size_t j = i + 1; j < reachablePoints.size(); j++)
+        {
+            Point p1 = reachablePoints[i];
+            Point p2 = reachablePoints[j];
+            int dist = abs(p1.first - p2.first) + abs(p1.second - p2.second);
+
+            if (dist <= 20 && distance[p2.first][p2.second] - distance[p1.first][p1.second] > dist)
+            {
+                int saved = distance[p2.first][p2.second] - distance[p1.first][p1.second] - dist;
+                if (saved >= 50)
                 {
-                    uniqueCheats.insert(wall);
-
-                    grid[x][y] = '.';
-                    int timeAfter = dijkstra({startX, startY}, {endX, endY}, grid);
-
-                    int timeSaved = timeBefore - timeAfter;
-
-                    if (timeSaved >= 100)
-                    {
-                        sum++;
-                    }
-
-                    grid[x][y] = '#';
+                    sum++;
                 }
             }
         }
@@ -120,6 +109,12 @@ void solve(vector<vector<char>>& grid)
 
 int main(int argc, char* argv[])
 {
+    if (argc < 2)
+    {
+        cerr << "Please provide the input file as a command-line argument." << endl;
+        return 1;
+    }
+
     ifstream inputFile(argv[1]);
     vector<vector<char>> grid;
 
@@ -139,5 +134,6 @@ int main(int argc, char* argv[])
     inputFile.close();
 
     solve(grid);
+    return 0;
 }
 
