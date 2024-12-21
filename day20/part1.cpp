@@ -108,7 +108,6 @@ void solve(vector<vector<char>>& grid)
                     {
                         sum++;
                     }
-
                     grid[x][y] = '#';
                 }
             }

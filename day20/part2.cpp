@@ -4,6 +4,7 @@
 #include <string>
 #include <climits>
 #include <queue>
+#include <map>
 #include <utility>
 
 using namespace std;
@@ -39,12 +40,6 @@ void solve(const vector<vector<char>>& grid)
         }
     }
 
-    if (startX == -1 || startY == -1 || endX == -1 || endY == -1)
-    {
-        cerr << "Start or End not found in the grid." << endl;
-        return;
-    }
-
     vector<vector<bool>> visited(grid.size(), vector<bool>(grid[0].size(), false));
     vector<vector<int>> distance(grid.size(), vector<int>(grid[0].size(), 0));
     queue<Point> q;
@@ -78,12 +73,14 @@ void solve(const vector<vector<char>>& grid)
     {
         for (int j = 0; j < grid[0].size(); j++)
         {
-            if (visited[i][j] && grid[i][j] != 'S' && grid[i][j] != 'E')
+            if (visited[i][j])
             {
                 reachablePoints.push_back({i, j});
             }
         }
     }
+
+    map<int, int> cheats;
 
     for (size_t i = 0; i < reachablePoints.size(); i++)
     {
@@ -99,9 +96,14 @@ void solve(const vector<vector<char>>& grid)
                 if (saved >= 50)
                 {
                     sum++;
+                    cheats[saved]++;
                 }
             }
         }
+    }
+    for (const auto& entry : cheats)
+    {
+        cout << "Time saved: " << entry.first << " -> Count: " << entry.second << "\n";
     }
 
     printf("sum: %d\n", sum);
@@ -109,12 +111,6 @@ void solve(const vector<vector<char>>& grid)
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
-    {
-        cerr << "Please provide the input file as a command-line argument." << endl;
-        return 1;
-    }
-
     ifstream inputFile(argv[1]);
     vector<vector<char>> grid;
 
@@ -134,6 +130,5 @@ int main(int argc, char* argv[])
     inputFile.close();
 
     solve(grid);
-    return 0;
 }
 
