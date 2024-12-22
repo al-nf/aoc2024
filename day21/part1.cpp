@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <random>
 
 using namespace std;
 
@@ -16,66 +17,18 @@ pair<int, int> translateGridPosition(char c)
     int x, y;
     switch (c)
     {
-        case '0':
-        {
-            x = 3; y = 1;
-            break;
-        }
-        case '1':
-        {
-            x = 2; y = 0;
-            break;
-        }
-        case '2':
-        {
-            x = 2; y = 1;
-            break;
-        }
-        case '3':
-        {
-            x = 2; y = 2;
-            break;
-        }
-        case '4':
-        {
-            x = 1; y = 0;
-            break;
-        }
-        case '5':
-        {
-            x = 1; y = 1;
-            break;
-        }
-        case '6':
-        {
-            x = 1; y = 2;
-            break;
-        }
-        case '7':
-        {
-            x = 0; y = 0;
-            break;
-        }
-        case '8':
-        {
-            x = 0; y = 1;
-            break;
-        }
-        case '9':
-        {
-            x = 0; y = 2;
-            break;
-        }
-        case 'A':
-        {
-            x = 3; y = 2;
-            break;
-        }
-        default:
-        {
-            printf("invalid input\n");
-            return make_pair(-1, -1);
-        }
+        case '0': x = 3; y = 1; break;
+        case '1': x = 2; y = 0; break;
+        case '2': x = 2; y = 1; break;
+        case '3': x = 2; y = 2; break;
+        case '4': x = 1; y = 0; break;
+        case '5': x = 1; y = 1; break;
+        case '6': x = 1; y = 2; break;
+        case '7': x = 0; y = 0; break;
+        case '8': x = 0; y = 1; break;
+        case '9': x = 0; y = 2; break;
+        case 'A': x = 3; y = 2; break;
+        default: printf("invalid input\n"); return make_pair(-1, -1);
     }
     return make_pair(x, y);
 }
@@ -85,123 +38,106 @@ pair<int, int> translateKeypadPosition(char c)
     int x, y;
     switch (c)
     {
-        case '^':
-        {
-            x = 0; y = 1;
-            break;
-        }
-        case 'A':
-        {
-            x = 0; y = 2;
-            break;
-        }
-        case '<':
-        {
-            x = 1; y = 0;
-            break;
-        }
-        case 'v':
-        {
-            x = 1; y = 1;
-            break;
-        }
-        case '>':
-        {
-            x = 1; y = 2;
-            break;
-        }
-        default:
-        {
-            printf("invalid input\n");
-            return make_pair(-1, -1);
-        }
+        case '^': x = 0; y = 1; break;
+        case 'A': x = 0; y = 2; break;
+        case '<': x = 1; y = 0; break;
+        case 'v': x = 1; y = 1; break;
+        case '>': x = 1; y = 2; break;
+        default: printf("invalid input\n"); return make_pair(-1, -1);
     }
     return make_pair(x, y);
 }
-string findPath(const vector<vector<char>>& grid, int x1, int y1, int x2, int y2) {
+
+string findPath(const vector<vector<char>>& grid, int x1, int y1, int x2, int y2)
+{
     vector<pair<pair<int, int>, char>> directions = {
-        {{-1, 0}, '^'},  // Up
-        {{1, 0}, 'v'},   // Down
-        {{0, -1}, '<'},  // Left
-        {{0, 1}, '>'}    // Right
+        {{-1, 0}, '^'},
+        {{1, 0}, 'v'},
+        {{0, -1}, '<'},
+        {{0, 1}, '>'}
     };
-    
-    struct Path {
+
+    struct Path
+    {
         string moves;
         vector<vector<bool>> visited;
         int turns;
         int x, y;
         int lastDir;
-        
-        Path(int rows, int cols, int startX, int startY) : 
-            visited(rows, vector<bool>(cols, false)),
-            turns(0), x(startX), y(startY), lastDir(-1) {
+
+        Path(int rows, int cols, int startX, int startY)
+            : visited(rows, vector<bool>(cols, false)),
+              turns(0), x(startX), y(startY), lastDir(-1)
+        {
             visited[startX][startY] = true;
         }
     };
-    
+
     int rows = grid.size();
     int cols = grid[0].size();
-    
-    // Queue for BFS
+
     queue<Path> q;
     q.push(Path(rows, cols, x1, y1));
-    
-    // Track best path found
+
     string bestPath = "";
     int minTurns = INT_MAX;
-    int maxAllowedLength = (rows + cols) * 2;  // Reasonable limit for path length
-    
-    while (!q.empty()) {
+    int maxAllowedLength = (rows + cols) * 2;
+
+    while (!q.empty())
+    {
         Path current = q.front();
         q.pop();
-        
-        // Check if we've reached the target
-        if (current.x == x2 && current.y == y2) {
-            if (current.turns < minTurns || 
-                (current.turns == minTurns && current.moves.length() < bestPath.length())) {
+
+        if (current.x == x2 && current.y == y2)
+        {
+            if (current.turns < minTurns ||
+                (current.turns == minTurns && current.moves.length() < bestPath.length()))
+            {
                 minTurns = current.turns;
                 bestPath = current.moves;
             }
             continue;
         }
-        
-        // Stop exploring if path is too long
+
         if (current.moves.length() >= maxAllowedLength) continue;
-        
-        // Try each direction
-        for (int i = 0; i < directions.size(); i++) {
-            int nx = current.x + directions[i].first.first;
-            int ny = current.y + directions[i].first.second;
-            
-            if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && 
-                !current.visited[nx][ny] && grid[nx][ny] != '#') {
-                
+
+        vector<pair<pair<int, int>, char>> shuffledDirections = directions;
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(shuffledDirections.begin(), shuffledDirections.end(), g);
+
+        for (int i = 0; i < shuffledDirections.size(); i++)
+        {
+            int nx = current.x + shuffledDirections[i].first.first;
+            int ny = current.y + shuffledDirections[i].first.second;
+
+            if (nx >= 0 && nx < rows && ny >= 0 && ny < cols &&
+                !current.visited[nx][ny] && grid[nx][ny] != '#')
+            {
                 Path newPath = current;
                 newPath.x = nx;
                 newPath.y = ny;
                 newPath.visited[nx][ny] = true;
-                newPath.moves += directions[i].second;
-                
-                // Count turn if direction changed
-                if (current.lastDir != -1 && current.lastDir != i) {
+                newPath.moves += shuffledDirections[i].second;
+
+                if (current.lastDir != -1 && current.lastDir != i)
+                {
                     newPath.turns++;
                 }
                 newPath.lastDir = i;
-                
-                // Only continue if we haven't found a better path
-                if (newPath.turns < minTurns) {
+
+                if (newPath.turns < minTurns)
+                {
                     q.push(newPath);
                 }
             }
         }
     }
-    
+
     return bestPath;
 }
 
-
-void solve(const vector<vector<char>>& grid, const vector<vector<char>>& keypad, const vector<vector<char>>& passwords)
+int solve(const vector<vector<char>>& grid, const vector<vector<char>>& keypad, const vector<vector<char>>& passwords)
 {
     int x0, y0, x1, y1, x2, y2;
     int tx0, ty0, tx1, ty1, tx2, ty2;
@@ -214,21 +150,23 @@ void solve(const vector<vector<char>>& grid, const vector<vector<char>>& keypad,
 
     for (vector<char> row : passwords)
     {
-        string result = "";
         string res0 = "";
         string res1 = "";
         string res2 = "";
         string moves = "";
         string moves1 = "";
         string moves2 = "";
+        string result = "";
+
         for (char c : row)
         {
-            pair <int, int> tmp = translateGridPosition(c);
+            pair<int, int> tmp = translateGridPosition(c);
             tx0 = tmp.first; ty0 = tmp.second;
             string moves = findPath(grid, x0, y0, tx0, ty0);
             x0 = tx0; y0 = ty0;
             moves += 'A';
             res0 += moves;
+
             for (char ch : moves)
             {
                 moves1 = "";
@@ -252,11 +190,8 @@ void solve(const vector<vector<char>>& grid, const vector<vector<char>>& keypad,
                     result += moves2;
                 }
             }
-            cout << "moves: " << moves << '\n';
-            cout << "moves1: " << moves1 << '\n';
-            cout << "moves2: " << moves2 << '\n';
         }
-        cout << result << "\n\n";
+
         string temporary = "";
         for (char c : row)
         {
@@ -266,28 +201,23 @@ void solve(const vector<vector<char>>& grid, const vector<vector<char>>& keypad,
             }
         }
         int a = stoi(temporary);
-        cout << a << '\n';
-        cout << result.length() << '\n';
         sum += (result.length() * a);
-        cout << '\n' << res2 << '\n';
-        cout << res1 << '\n';
-        cout << res0 << '\n';
     }
-    cout << "sum: " << sum << '\n';
+
+    return sum;
 }
+
 int main(int argc, char* argv[])
 {
     ifstream inputFile(argv[1]);
-    vector<vector<char>> grid = 
-    {
+    vector<vector<char>> grid = {
         {'7', '8', '9'},
         {'4', '5', '6'},
         {'1', '2', '3'},
         {'#', '0', 'A'}
     };
-    
-    vector<vector<char>> keypad =
-    {
+
+    vector<vector<char>> keypad = {
         {'#', '^', 'A'},
         {'<', 'v', '>'}
     };
@@ -308,5 +238,17 @@ int main(int argc, char* argv[])
 
     inputFile.close();
 
-    solve(grid, keypad, passwords);
+    int smallestSum = INT_MAX;
+
+    for (int i = 0; i < 1000000; ++i)
+    {
+        int currentSum = solve(grid, keypad, passwords);
+        if (currentSum < smallestSum)
+        {
+            smallestSum = currentSum;
+        }
+        cout << "run " << i << '\n';
+    }
+
+    cout << "sum: " << smallestSum << '\n';
 }
