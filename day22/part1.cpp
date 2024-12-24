@@ -19,7 +19,6 @@ int calc(const int& n)
 
 void solve(const vector<int>& nums)
 {
-    unordered_map<int, int> memo;
     ULL sum = 0;
 
     for (int num : nums)
@@ -27,19 +26,10 @@ void solve(const vector<int>& nums)
         int res = num;
         for (int i = 0; i < 2000; i++)
         {
-            if (memo.find(res) != memo.end())
-            {
-                res = memo[res];
-            }
-            else
-            {
-                res = calc(res);
-                memo[num] = res;
-            }
+            res = calc(res);
         }
         sum += res;
     }
-
     printf("sum: %llu\n", sum);
 }
 int main(int argc, char* argv[])
