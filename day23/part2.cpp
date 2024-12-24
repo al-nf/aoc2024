@@ -2,17 +2,45 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <list>
 #include <map>
 #include <set>
 #include <algorithm>
 
 using namespace std;
 
+void bronKerbosch(set<string>& R, set<string>& P, set<string>& X, map<string, set<string>>& adjList, set<string>& maxClique)
+{
+    if (P.empty() && X.empty())
+    {
+        if (R.size() > maxClique.size())
+        {
+            maxClique = R;
+        }
+        return;
+    }
+    set<string> P_copy = P;
+    for (const auto& node : P_copy) {
+        set<string> neighbors = adjList[node];
+        set<string> newR = R;
+        newR.insert(node);
+
+        set<string> newP, newX;
+        for (const auto& n : neighbors) {
+            if (P.find(n) != P.end()) newP.insert(n);
+            if (X.find(n) != X.end()) newX.insert(n);
+        }
+
+        bronKerbosch(newR, newP, newX, adjList, maxClique);
+
+        P.erase(node);
+        X.insert(node);
+    }
+}
 void solve(const vector<pair<string, string>>& connections)
 {
     int sum = 0;
     map<string, set<string>> adjList;
+    set<vector<string>> uniqueTriangles;
 
     for (const auto& edge : connections)
     {
@@ -20,35 +48,23 @@ void solve(const vector<pair<string, string>>& connections)
         adjList[edge.second].insert(edge.first);
     }
 
-    for (const auto& nodeA : adjList)
+    set<string> R, P, X, maxClique;
+    for (const auto& node : adjList)
     {
-        const string& a = nodeA.first;
-        const set<string>& neighborsA = nodeA.second;
-
-        for (const string& b : neighborsA)
-        {
-            if (adjList.find(b) == adjList.end()) continue;
-
-            for (const string& c : adjList[b])
-            {
-                if (c != a && neighborsA.find(c) != neighborsA.end())
-                {
-                    vector<string> triangle = {a, b, c};
-                    sort(triangle.begin(), triangle.end()); 
-
-                    if (triangle[0] == a) 
-                    {
-                        if (a[0] == 't' || b[0] == 't' || c[0] == 't')
-                        {
-                            sum++;
-                        }
-                    }
-                }
-            }
-        }
+        P. insert(node.first);
     }
 
-    printf("sum: %d\n", sum/2);
+    bronKerbosch(R, P, X, adjList, maxClique);
+
+    vector<string> res (maxClique.begin(), maxClique.end());
+    sort(res.begin(), res.end());
+
+    for (size_t i = 0; i < res.size(); i++)
+    {
+        if (i > 0) cout << ",";
+        cout << res[i];
+    }
+    cout << '\n';
 }
 
 int main(int argc, char* argv[])
