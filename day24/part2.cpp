@@ -4,7 +4,8 @@
 #include <string>
 #include <regex>
 #include <map>
-#include <cmath>
+#include <set>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,77 +15,68 @@ struct Gate
     string input2;
     string output;
     int op; 
-    bool processed = false;
 };
-
-bool canProcess(const Gate& gate, const map<string, bool>& states) 
-{
-    return states.find(gate.input1) != states.end() && states.find(gate.input2) != states.end();
-}
-
-bool processGate(const Gate& gate, const map<string, bool>& states) 
-{
-    bool in1 = states.at(gate.input1);
-    bool in2 = states.at(gate.input2);
-    
-    switch (gate.op) 
-    {
-        case 0: return in1 && in2;
-        case 1: return in1 || in2;
-        case 2: return in1 != in2;
-        default: return false;
-    }
-}
-
-string traverse(const map<string, bool>& data) 
-{
-    vector<pair<int, bool>> zWires;
-    for (const auto& pair : data) 
-    {
-        if (pair.first[0] == 'z') 
-        {
-            string numStr = pair.first.substr(1);
-            zWires.push_back({stoi(numStr), pair.second});
-        }
-    }
-    
-    sort(zWires.begin(), zWires.end());
-    
-    string result;
-    for (const auto& wire : zWires) 
-    {
-        result += (wire.second ? "1" : "0");
-    }
-    return result;
-}
 
 void solve(map<string, bool>& states, vector<Gate>& gates) 
 {
-    bool progress;
-    do 
+    set<string> brokenNodes;
+
+    for (const auto& gate : gates) 
     {
-        progress = false;
-        for (Gate& gate : gates) 
+        if (gate.output[0] == 'z' && gate.output != "z45" && gate.op != 2) 
         {
-            if (!gate.processed && canProcess(gate, states)) 
+            brokenNodes.insert(gate.output);
+        }
+        if (gate.input1[0] == 'z') 
+        {
+            brokenNodes.insert(gate.input1);
+        }
+        if (gate.input2[0] == 'z') 
+        {
+            brokenNodes.insert(gate.input2);
+        }
+
+        if (gate.op == 2 && gate.output[0] != 'z' && !((gate.input1[0] == 'x' && gate.input2[0] == 'y') || (gate.input1[0] == 'y' && gate.input2[0] == 'x'))) 
+        {
+            brokenNodes.insert(gate.output);
+        }
+
+        if (gate.op == 2 && gate.output[0] != 'z') 
+        {
+            int count = count_if(gates.begin(), gates.end(), [&](const Gate& g) 
             {
-                states[gate.output] = processGate(gate, states);
-                gate.processed = true;
-                progress = true;
+                return g.input1 == gate.output || g.input2 == gate.output;
+            });
+            if (count != 2) 
+            {
+                brokenNodes.insert(gate.output);
             }
         }
-    } while (progress);
 
-    string binStr = traverse(states);
-    long int sum = 0;
-    for (int i = 0; i < binStr.length(); i++) 
-    {
-        if (binStr[i] == '1') {
-            sum += pow(2, i);
+        if (gate.op == 0 && gate.output[0] != 'z') 
+        {
+            int count = count_if(gates.begin(), gates.end(), [&](const Gate& g) 
+            {
+                return g.input1 == gate.output || g.input2 == gate.output;
+            });
+            if (count != 1 && !(gate.input1 == "x00" && gate.input2 == "y00")) 
+            {
+                brokenNodes.insert(gate.output);
+            }
         }
     }
-    cout << '\n' << binStr << '\n';
-    printf("sum: %ld\n", sum);
+
+    vector<string> sortedResults(brokenNodes.begin(), brokenNodes.end());
+    sort(sortedResults.begin(), sortedResults.end());
+    for (size_t i = 0; i < sortedResults.size(); ++i) 
+    {
+        cout << sortedResults[i];
+        if (i < sortedResults.size() - 1) 
+        {
+            cout << ",";
+        }
+    }
+    cout << endl;
 }
 
 int main(int argc, char* argv[]) 
@@ -103,7 +95,7 @@ int main(int argc, char* argv[])
     while (getline(inputFile, line)) 
     {
         if (line.empty()) break;
-        
+
         string wire = line.substr(0, 3);
         bool state = (line.substr(5, 1) == "1");
         states[wire] = state;
@@ -119,12 +111,21 @@ int main(int argc, char* argv[])
             gate.input1 = match[1];
             gate.input2 = match[3];
             gate.output = match[4];
-            
+
             string op = match[2];
-            if (op == "AND") gate.op = 0;
-            else if (op == "OR") gate.op = 1;
-            else if (op == "XOR") gate.op = 2;
-            
+            if (op == "AND") 
+            {
+                gate.op = 0;
+            }
+            else if (op == "OR") 
+            {
+                gate.op = 1;
+            }
+            else if (op == "XOR") 
+            {
+                gate.op = 2;
+            }
+
             gates.push_back(gate);
         }
     }
@@ -132,3 +133,4 @@ int main(int argc, char* argv[])
     inputFile.close();
     solve(states, gates);
 }
+
