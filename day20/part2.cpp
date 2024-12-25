@@ -2,117 +2,78 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <climits>
-#include <queue>
-#include <map>
-#include <utility>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
 typedef pair<int, int> Point;
 
-const int dx[] = {1, 0, -1, 0};
-const int dy[] = {0, 1, 0, -1};
-
-bool isValid(int x, int y, const vector<vector<char>>& grid, const vector<vector<bool>>& visited)
+vector<Point> parseTrack(const vector<vector<char>>& grid, Point& start)
 {
-    return (x >= 0 && x < grid.size() && y >= 0 && y < grid[0].size() && grid[x][y] != '#' && !visited[x][y]);
+    vector<Point> track;
+    int x, y;
+
+    for (y = 0; y < grid.size(); y++)
+    {
+        for (x = 0; x < grid[y].size(); x++)
+        {
+            if (grid[y][x] == 'S')
+            {
+                start = {x, y};
+                track.push_back(start);
+                break;
+            }
+        }
+        if (!track.empty()) break;
+    }
+
+    while (grid[y][x] != 'E')
+    {
+        Point nextPoint = {-1, -1};
+        for (auto nb : vector<Point>{{x - 1, y}, {x + 1, y}, {x, y - 1}, {x, y + 1}})
+        {
+            int nx = nb.first;
+            int ny = nb.second;
+            if (nx >= 0 && ny >= 0 && ny < grid.size() && nx < grid[ny].size() && grid[ny][nx] != '#' && !(track.size() > 1 && nb == track[track.size() - 2]))
+            {
+                nextPoint = nb;
+                break;
+            }
+        }
+        if (nextPoint.first == -1) break;
+        track.push_back(nextPoint);
+        x = nextPoint.first;
+        y = nextPoint.second;
+    }
+    return track;
 }
 
-void solve(const vector<vector<char>>& grid)
+vector<int> calculateCheats(const vector<Point>& track, int max_dist)
 {
-    int startX = -1, startY = -1, endX = -1, endY = -1;
-
-    for (int i = 0; i < grid.size(); i++)
+    vector<int> saved;
+    for (size_t t1 = 0; t1 < track.size(); t1++)
     {
-        for (int j = 0; j < grid[0].size(); j++)
+        for (size_t t2 = t1 + 3; t2 < track.size(); t2++)
         {
-            if (grid[i][j] == 'S')
+            int x1 = track[t1].first, y1 = track[t1].second;
+            int x2 = track[t2].first, y2 = track[t2].second;
+            int dist = abs(x2 - x1) + abs(y2 - y1);
+
+            if (dist <= max_dist && (t2 - t1) > dist)
             {
-                startX = i;
-                startY = j;
-            }
-            if (grid[i][j] == 'E')
-            {
-                endX = i;
-                endY = j;
+                saved.push_back(t2 - t1 - dist);
             }
         }
     }
-
-    vector<vector<bool>> visited(grid.size(), vector<bool>(grid[0].size(), false));
-    vector<vector<int>> distance(grid.size(), vector<int>(grid[0].size(), 0));
-    queue<Point> q;
-
-    q.push({startX, startY});
-    visited[startX][startY] = true;
-
-    while (!q.empty())
-    {
-        Point p = q.front();
-        q.pop();
-        int x = p.first, y = p.second;
-
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = x + dx[i], ny = y + dy[i];
-
-            if (isValid(nx, ny, grid, visited))
-            {
-                visited[nx][ny] = true;
-                distance[nx][ny] = distance[x][y] + 1;
-                q.push({nx, ny});
-            }
-        }
-    }
-
-    int sum = 0;
-    vector<Point> reachablePoints;
-
-    for (int i = 0; i < grid.size(); i++)
-    {
-        for (int j = 0; j < grid[0].size(); j++)
-        {
-            if (visited[i][j])
-            {
-                reachablePoints.push_back({i, j});
-            }
-        }
-    }
-
-    map<int, int> cheats;
-
-    for (size_t i = 0; i < reachablePoints.size(); i++)
-    {
-        for (size_t j = i + 1; j < reachablePoints.size(); j++)
-        {
-            Point p1 = reachablePoints[i];
-            Point p2 = reachablePoints[j];
-            int dist = abs(p1.first - p2.first) + abs(p1.second - p2.second);
-
-            if (dist <= 20 && distance[p2.first][p2.second] - distance[p1.first][p1.second] > dist)
-            {
-                int saved = distance[p2.first][p2.second] - distance[p1.first][p1.second] - dist;
-                if (saved >= 50)
-                {
-                    sum++;
-                    cheats[saved]++;
-                }
-            }
-        }
-    }
-    for (const auto& entry : cheats)
-    {
-        cout << "Time saved: " << entry.first << " -> Count: " << entry.second << "\n";
-    }
-
-    printf("sum: %d\n", sum);
+    return saved;
 }
 
 int main(int argc, char* argv[])
 {
     ifstream inputFile(argv[1]);
     vector<vector<char>> grid;
+    string line;
 
     if (!inputFile)
     {
@@ -120,15 +81,19 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    string line;
     while (getline(inputFile, line))
     {
         vector<char> row(line.begin(), line.end());
         grid.push_back(row);
     }
-
     inputFile.close();
 
-    solve(grid);
+    Point start;
+    vector<Point> track = parseTrack(grid, start);
+
+    vector<int> cheats = calculateCheats(track, 20);
+
+    int totalCheats = count_if(cheats.begin(), cheats.end(), [](int saved) { return saved >= 100; });
+    cout << "sum: " << totalCheats << '\n';
 }
 
