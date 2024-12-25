@@ -51,9 +51,9 @@ pair<int, int> translateKeypadPosition(char c)
 string findPath(const vector<vector<char>>& grid, int x1, int y1, int x2, int y2)
 {
     vector<pair<pair<int, int>, char>> directions = {
+        {{0, -1}, '<'},
         {{-1, 0}, '^'},
         {{1, 0}, 'v'},
-        {{0, -1}, '<'},
         {{0, 1}, '>'}
     };
 
