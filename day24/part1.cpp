@@ -44,6 +44,7 @@ string traverse(const map<string, bool>& data)
         if (pair.first[0] == 'z') 
         {
             string numStr = pair.first.substr(1);
+            cout << numStr << '\n';
             zWires.push_back({stoi(numStr), pair.second});
         }
     }

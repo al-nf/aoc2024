@@ -70,7 +70,7 @@ void solve(const vector<int>& nums)
         }
     }
 
-    printf("%d\n", bana);
+    printf("bananas: %d\n", bana);
 
 }
 int main(int argc, char* argv[])

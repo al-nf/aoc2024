@@ -76,6 +76,7 @@ void solve(const vector<vector<vector<char>>>& schems)
             }
             if (bad)
             {
+                /*
                 cout << "Bad lock and key: " << '\n';
                 for (int num : lck)
                 {
@@ -87,6 +88,7 @@ void solve(const vector<vector<vector<char>>>& schems)
                     cout << num;
                 }
                 cout << '\n';
+                */
                 sum--;
             }
         }

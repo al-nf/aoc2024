@@ -1,4 +1,4 @@
-CC = g++-14
+CC = g++
 CFLAGS = -Wall -Wextra
 
 PART1 = part1

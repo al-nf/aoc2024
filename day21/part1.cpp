@@ -9,6 +9,7 @@
 #include <climits>
 #include <cmath>
 #include <random>
+#include <cstdint>
 
 using namespace std;
 

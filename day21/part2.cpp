@@ -11,6 +11,7 @@
 #include <set>
 #include <cmath>
 #include <algorithm>
+#include <cstdint>
 
 using namespace std;
 
